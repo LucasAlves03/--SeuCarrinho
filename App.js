@@ -18,50 +18,105 @@ import Splash from "./components/Splash";
 import AddItemScreen from "./screens/AddItemScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import HomeScreen from "./screens/HomeScreen";
+import ActiveListsScreen from "./screens/ActiveListsScreen";
 import { generateId } from "./utils/categories";
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState("home");
   const [currentList, setCurrentList] = useState([]);
-  const [savedLists, setSavedLists] = useState([]);
   const [showNameModal, setShowNameModal] = useState(false);
   const [listName, setListName] = useState("");
+  
+  // ✏️✏️✏️ SEPARATED: Active vs Expired lists
+  const [activeLists, setActiveLists] = useState([]);
+  const [expiredLists, setExpiredLists] = useState([]);
 
-  // Load saved lists from storage
+  // ✏️✏️✏️ Load lists on startup
   useEffect(() => {
     loadSavedLists();
   }, []);
 
+  // ✏️✏️✏️ LOAD from AsyncStorage
   const loadSavedLists = async () => {
     try {
-      const lists = await AsyncStorage.getItem("savedLists");
-      if (lists) {
-        setSavedLists(JSON.parse(lists));
+      const active = await AsyncStorage.getItem('activeLists');
+      const expired = await AsyncStorage.getItem('expiredLists');
+      
+      if (active) {
+        setActiveLists(JSON.parse(active));
+      }
+      if (expired) {
+        setExpiredLists(JSON.parse(expired));
       }
     } catch (error) {
-      console.log("Error loading lists:", error);
+      console.log('Error loading lists:', error);
     }
   };
 
-  const saveListsToStorage = async (lists) => {
+  // ✏️✏️✏️ SAVE to AsyncStorage
+  const saveActiveListsToStorage = async (lists) => {
     try {
-      await AsyncStorage.setItem("savedLists", JSON.stringify(lists));
+      await AsyncStorage.setItem('activeLists', JSON.stringify(lists));
     } catch (error) {
-      console.log("Error saving lists:", error);
+      console.log('Error saving active lists:', error);
     }
   };
 
+  const saveExpiredListsToStorage = async (lists) => {
+    try {
+      await AsyncStorage.setItem('expiredLists', JSON.stringify(lists));
+    } catch (error) {
+      console.log('Error saving expired lists:', error);
+    }
+  };
+
+  // ✏️✏️✏️ Start new list
   const handleStartNewList = () => {
     setCurrentList([]);
     setActiveTab("add");
   };
 
+  // ✏️✏️✏️ Add item to current cart
   const handleAddItem = (item) => {
-    setCurrentList([...currentList, item]);
+    const newItem = {
+      ...item,
+      bought: false,
+    };
+    setCurrentList([...currentList, newItem]);
   };
 
+  // ✏️✏️✏️ Mark item as bought in CURRENT CART
+  const handleMarkAsBought = (itemId) => {
+    const updatedList = currentList.map((item) => 
+      item.id === itemId ? {...item, bought: true} : item
+    );
+    
+    setCurrentList(updatedList);
+    
+    // Check if ALL items are bought
+    const allBought = updatedList.every(item => item.bought);
+    if (allBought) {
+      Alert.alert(
+        '🎉 Todos comprados!',
+        'Salve a lista para movê-la para o histórico.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  // ✏️✏️✏️ Delete item from current cart
   const handleDeleteItem = (itemId) => {
+    const item = currentList.find(i => i.id === itemId);
+    if (item?.bought) {
+      Alert.alert(
+        "Item Comprado", 
+        "Não é possível remover itens marcados como comprados.", 
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+    
     Alert.alert("Remover item", "Deseja remover este item da lista?", [
       { text: "Cancelar", style: "cancel" },
       {
@@ -74,31 +129,26 @@ export default function App() {
     ]);
   };
 
-  const handleEditItem = (updateItem) => {
+  // ✏️✏️✏️ Edit item in current cart
+  const handleEditItem = (updatedItem) => {
+    const item = currentList.find(i => i.id === updatedItem.id);
+    if (item?.bought) {
+      Alert.alert(
+        "Atenção", 
+        "Não é possível editar um item marcado como comprado.",
+        [{ text: 'OK' }] 
+      );
+      return;
+    }
+    
     setCurrentList(
       currentList.map((item) =>
-        item.id === updateItem.id ? updateItem : item,
-      ),
+        item.id === updatedItem.id ? updatedItem : item
+      )
     );
   };
 
-  const handleEditItemHistory = (listId, updatedItem) => {
-    const updatedLists = savedLists.map((list) => {
-      if (list.id === listId) {
-        return {
-          ...list,
-          items: list.items.map((item) =>
-            item.id === updatedItem.id ? updatedItem : item,
-          ),
-        };
-      }
-      return list;
-    });
-
-    setSavedLists(updatedLists);
-    saveListsToStorage(updatedLists);
-  };
-
+  // ✏️✏️✏️ Save current cart as ACTIVE list
   const handleSaveList = () => {
     if (currentList.length === 0) {
       Alert.alert("Atenção", "Adicione pelo menos um item à lista");
@@ -113,52 +163,165 @@ export default function App() {
       date: new Date().toLocaleDateString("pt-BR"),
       items: currentList,
       name: listName.trim() || "Compras sem nome",
+      status: 'active',
     };
 
-    const updatedLists = [newList, ...savedLists];
-    setSavedLists(updatedLists);
-    saveListsToStorage(updatedLists);
+    const updatedLists = [newList, ...activeLists];
+    setActiveLists(updatedLists);
+    saveActiveListsToStorage(updatedLists);
 
     setCurrentList([]);
     setListName("");
     setShowNameModal(false);
-    setActiveTab("history");
+    setActiveTab("home");
 
-    Alert.alert("Sucesso", "Lista salva com sucesso!");
+    Alert.alert("✅ Lista Ativa!", "Sua lista está ativa. Marque os itens conforme compra!");
   };
 
-  const handleViewList = (list) => {
+  // ✏️✏️✏️ Mark item as bought in ACTIVE LIST
+  const handleMarkAsBoughtInActiveList = (listId, itemId) => {
+    const updatedLists = activeLists.map((list) => {
+      if (list.id === listId) {
+        return {
+          ...list,
+          items: list.items.map((item) =>
+            item.id === itemId ? { ...item, bought: true } : item
+          ),
+        };
+      }
+      return list;
+    });
+    
+    setActiveLists(updatedLists);
+    saveActiveListsToStorage(updatedLists);
+    
+    // Check if list should expire
+    checkAndExpireList(listId, updatedLists);
+  };
+
+  // ✏️✏️✏️ Check if list is complete and move to expired
+  const checkAndExpireList = (listId, lists) => {
+    const list = lists.find(l => l.id === listId);
+    if (!list) return;
+    
+    const allBought = list.items.every(item => item.bought);
+    
+    if (allBought) {
+      Alert.alert(
+        '🎉 Lista Finalizada!',
+        'Todos os itens foram comprados! Esta lista foi movida para o histórico.',
+        [{ text: 'OK' }]
+      );
+      
+      // Move to expired
+      const expiredList = { 
+        ...list, 
+        status: 'expired', 
+        completedDate: new Date().toLocaleDateString('pt-BR') 
+      };
+      const newExpired = [expiredList, ...expiredLists];
+      const newActive = lists.filter(l => l.id !== listId);
+      
+      setExpiredLists(newExpired);
+      setActiveLists(newActive);
+      
+      saveExpiredListsToStorage(newExpired);
+      saveActiveListsToStorage(newActive);
+    }
+  };
+
+  // ✏️✏️✏️ Edit item in ACTIVE LIST
+  const handleEditItemInActiveList = (listId, updatedItem) => {
+    const list = activeLists.find(l => l.id === listId);
+    
+    if (list && list.items.some(item => item.bought)) {
+      Alert.alert(
+        'Atenção',
+        'Esta lista já tem itens comprados. Deseja continuar editando?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Editar',
+            onPress: () => updateActiveListItem(listId, updatedItem)
+          }
+        ]
+      );
+      return;
+    }
+
+    updateActiveListItem(listId, updatedItem);
+  };
+
+  const updateActiveListItem = (listId, updatedItem) => {
+    const updatedLists = activeLists.map((list) => {
+      if (list.id === listId) {
+        return {
+          ...list,
+          items: list.items.map((item) =>
+            item.id === updatedItem.id ? updatedItem : item
+          ),
+        };
+      }
+      return list;
+    });
+    
+    setActiveLists(updatedLists);
+    saveActiveListsToStorage(updatedLists);
+  };
+
+  // ✏️✏️✏️ Delete ACTIVE list
+  const handleDeleteActiveList = (listId) => {
     Alert.alert(
-      list.name || list.date,
-      `Total: ${list.items.length} itens\n\n${list.items
-        .map(
-          (item) =>
-            `${item.category.icon} ${item.name} - Qtd: ${item.quantity}`,
-        )
-        .join("\n")}`,
-      [{ text: "OK" }],
+      "Excluir lista ativa", 
+      "Deseja excluir esta lista?", 
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: () => {
+            const updatedLists = activeLists.filter((list) => list.id !== listId);
+            setActiveLists(updatedLists);
+            saveActiveListsToStorage(updatedLists);
+          },
+        },
+      ]
     );
   };
 
-  const handleDeleteList = (listId) => {
-    Alert.alert("Excluir lista", "Deseja excluir esta lista permanentemente?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Excluir",
-        style: "destructive",
-        onPress: () => {
-          const updatedLists = savedLists.filter((list) => list.id !== listId);
-          setSavedLists(updatedLists);
-          saveListsToStorage(updatedLists);
+  // ✏️✏️✏️ Delete EXPIRED list
+  const handleDeleteExpiredList = (listId) => {
+    Alert.alert(
+      "Excluir do histórico", 
+      "Deseja excluir esta lista do histórico?", 
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: () => {
+            const updatedLists = expiredLists.filter((list) => list.id !== listId);
+            setExpiredLists(updatedLists);
+            saveExpiredListsToStorage(updatedLists);
+          },
         },
-      },
-    ]);
+      ]
+    );
   };
 
+  // ✏️✏️✏️ Render screen based on active tab
   const renderScreen = () => {
     switch (activeTab) {
       case "home":
-        return <HomeScreen onStartNewList={handleStartNewList} />;
+        return (
+          <HomeScreen 
+            onStartNewList={handleStartNewList}
+            activeLists={activeLists}
+            expiredLists={expiredLists}
+            onViewActiveList={() => setActiveTab('active')}
+            onViewExpiredList={() => setActiveTab('history')}
+          />
+        );
       case "add":
         return (
           <AddItemScreen
@@ -167,19 +330,33 @@ export default function App() {
             onDeleteItem={handleDeleteItem}
             onSaveList={handleSaveList}
             onEditItem={handleEditItem}
+            onMarkAsBought={handleMarkAsBought}
+          />
+        );
+      case "active":
+        return (
+          <ActiveListsScreen
+            activeLists={activeLists}
+            onDeleteList={handleDeleteActiveList}
+            onEditItem={handleEditItemInActiveList}
+            onMarkAsBought={handleMarkAsBoughtInActiveList}
           />
         );
       case "history":
         return (
           <HistoryScreen
-            savedLists={savedLists}
-            onViewList={handleViewList}
-            onDeleteList={handleDeleteList}
-            onEdit={handleEditItemHistory}
+            savedLists={expiredLists}
+            onDeleteList={handleDeleteExpiredList}
           />
         );
       default:
-        return <HomeScreen onStartNewList={handleStartNewList} />;
+        return (
+          <HomeScreen 
+            onStartNewList={handleStartNewList}
+            activeLists={activeLists}
+            expiredLists={expiredLists}
+          />
+        );
     }
   };
 

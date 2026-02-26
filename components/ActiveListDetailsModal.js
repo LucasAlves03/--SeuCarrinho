@@ -1,4 +1,5 @@
-import {React, useState} from 'react';
+// ✏️✏️✏️ NEW FILE
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,25 +8,35 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  Alert
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { formatCurrency, formatQuantity } from '../utils/categories';
 import EditItemModal from './EditItemModal';
 
-const ListDetailsModal = ({ visible, onClose, list, onEditItem }) => {
+const ActiveListDetailsModal = ({ visible, onClose, list, onEditItem, onMarkAsBought }) => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [itemToEdit, setItemToEdit] = useState(null);
 
-  const hasAnyBoughtItems = () => {
-    return list?.items.some(item => item.bought);
-  }
+  if (!list) return null;
+
+  const calculateTotal = () => {
+    return list.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  };
+
+  const getBoughtCount = () => {
+    return list.items.filter(item => item.bought).length;
+  };
+
+  const getTotalItems = () => {
+    return list.items.length;
+  };
 
   const handleEditItem = (item) => {
-    if(hasAnyBoughtItems()) {
+    if (item.bought) {
       Alert.alert(
-        'Lista Finalizada',
-        'Esta lista contém itens comprados e não pode mais ser editada.',
+        'Item Comprado',
+        'Não é possível editar itens já comprados.',
         [{ text: 'OK' }]
       );
       return;
@@ -35,19 +46,30 @@ const ListDetailsModal = ({ visible, onClose, list, onEditItem }) => {
   };
 
   const handleSaveEdit = (updatedItem) => {
-    if( onEditItem && list) {
+    if (onEditItem && list) {
       onEditItem(list.id, updatedItem);
     }
     setEditModalVisible(false);
-  }
-  if (!list) return null;
-
-  const calculateTotal = () => {
-    return list.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   };
 
-  const getTotalItems = () => {
-    return list.items.reduce((sum, item) => sum + item.quantity, 0);
+  const handleMarkAsBought = (item) => {
+    if (item.bought) return; // Already bought
+    
+    Alert.alert(
+      'Marcar como Comprado?',
+      'Após marcar, você não poderá mais editar este item.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Confirmar',
+          onPress: () => {
+            if (onMarkAsBought && list) {
+              onMarkAsBought(list.id, item.id);
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -66,33 +88,66 @@ const ListDetailsModal = ({ visible, onClose, list, onEditItem }) => {
             </TouchableOpacity>
             <View>
               <Text style={styles.headerTitle}>{list.name || 'Lista de Compras'}</Text>
-              <Text style={styles.headerSubtitle}>{list.date}</Text>
+              <Text style={styles.headerSubtitle}>
+                {getBoughtCount()} de {getTotalItems()} comprados
+              </Text>
             </View>
           </View>
         </View>
 
+        {/* Progress Bar */}
+        <View style={styles.progressSection}>
+          <View style={styles.progressBarContainer}>
+            <View 
+              style={[
+                styles.progressBarFill, 
+                { width: `${(getBoughtCount() / getTotalItems()) * 100}%` }
+              ]} 
+            />
+          </View>
+          <Text style={styles.progressText}>
+            {getBoughtCount() === getTotalItems() 
+              ? '🎉 Lista completa!' 
+              : `Faltam ${getTotalItems() - getBoughtCount()} itens`}
+          </Text>
+        </View>
+
         {/* Items List */}
-        <ScrollView style={styles.itemsList} contentContainerStyle={styles.itemsListContent} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.itemsList} showsVerticalScrollIndicator={false}>
           {list.items.map((item, index) => (
-            <View key={item.id || index} style={[styles.itemCard, item.bought && styles.itemCardBought]}>
-              {item.bought && (
-                <View style={styles.boughtBadge}>
-                  <Ionicons name="checkmark-circle" size={20} color='#10B981' />
+            <View 
+              key={item.id || index} 
+              style={[
+                styles.itemCard,
+                item.bought && styles.itemCardBought
+              ]}
+            >
+              {/* Checkbox */}
+              <TouchableOpacity
+                style={styles.checkbox}
+                onPress={() => handleMarkAsBought(item)}
+                disabled={item.bought}
+              >
+                <View style={[styles.checkboxBox, item.bought && styles.checkboxBoxChecked]}>
+                  {item.bought && <Ionicons name="checkmark" size={18} color="#fff" />}
                 </View>
-              )}
+              </TouchableOpacity>
+
               <Image
-                source={item.category?.image}
-                style={styles.itemImage}
+                source={{ uri: item.category?.image }}
+                style={[styles.itemImage, item.bought && styles.itemImageBought]}
               />
               
               <View style={styles.itemInfo}>
-                <Text style={[styles.itemName, item.bought && styles.itemNameBought]}>{item.name}</Text>
+                <Text style={[styles.itemName, item.bought && styles.itemNameBought]}>
+                  {item.name}
+                </Text>
                 <Text style={styles.itemCategory}>{item.category?.name || 'Sem categoria'}</Text>
                 <View style={styles.itemPriceRow}>
                   <Text style={styles.itemQuantity}>
                     {formatQuantity(item.quantity, item.unit || 'unit')}
                   </Text>
-                  <Text style={styles.itemPrice}>
+                  <Text style={[styles.itemPrice, item.bought && styles.itemPriceBought]}>
                     {formatCurrency(item.price * item.quantity)}
                   </Text>
                 </View>
@@ -102,36 +157,38 @@ const ListDetailsModal = ({ visible, onClose, list, onEditItem }) => {
                   </Text>
                 )}
               </View>
-                {!hasAnyBoughtItems() && (
-                <TouchableOpacity style={styles.editButton} onPress={() => handleEditItem(item)}>
-                  <Ionicons name="create-outline" size={22} color="#323232" />
+
+              {/* Edit Button - hide if bought */}
+              {!item.bought && (
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => handleEditItem(item)}
+                >
+                  <Ionicons name="create-outline" size={22} color="#4A90E2" />
                 </TouchableOpacity>
-                )}
+              )}
             </View>
           ))}
         </ScrollView>
 
-        {/* Footer with Total */}
+        {/* Footer */}
         <View style={styles.footer}>
           <View style={styles.totalContainer}>
-            <View>
-              <Text style={styles.totalLabel}>Total da Lista</Text>
-              <Text style={styles.totalItems}>
-                {list.items.length} {list.items.length === 1 ? 'item' : 'itens'}
-              </Text>
-            </View>
+            <Text style={styles.totalLabel}>Total da Lista</Text>
             <Text style={styles.totalValue}>
               {formatCurrency(calculateTotal())}
             </Text>
           </View>
         </View>
+
+        {/* Edit Modal */}
+        <EditItemModal
+          visible={editModalVisible}
+          onClose={() => setEditModalVisible(false)}
+          item={itemToEdit}
+          onSave={handleSaveEdit}
+        />
       </View>
-      <EditItemModal 
-       visible={editModalVisible}
-       onClose={() => setEditModalVisible(false)}
-       item={itemToEdit}
-       onSave={handleSaveEdit} 
-      />
     </Modal>
   );
 };
@@ -172,11 +229,34 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     marginTop: 2,
   },
+  progressSection: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  progressBarContainer: {
+    height: 12,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 6,
+    overflow: 'hidden',
+    marginBottom: 10,
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#10B981',
+    borderRadius: 6,
+  },
+  progressText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#4A90E2',
+    textAlign: 'center',
+  },
   itemsList: {
     flex: 1,
     padding: 20,
   },
-  itemsListContent:{ paddingBottom: 20 },
   itemCard: {
     backgroundColor: '#fff',
     borderRadius: 16,
@@ -190,12 +270,36 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
+  itemCardBought: {
+    backgroundColor: '#F9FAFB',
+    opacity: 0.7,
+  },
+  checkbox: {
+    marginRight: 12,
+  },
+  checkboxBox: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  checkboxBoxChecked: {
+    backgroundColor: '#10B981',
+    borderColor: '#10B981',
+  },
   itemImage: {
     width: 70,
     height: 70,
     borderRadius: 12,
     marginRight: 15,
     backgroundColor: '#F3F4F6',
+  },
+  itemImageBought: {
+    opacity: 0.5,
   },
   itemInfo: {
     flex: 1,
@@ -205,6 +309,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1F2937',
     marginBottom: 4,
+  },
+  itemNameBought: {
+    textDecorationLine: 'line-through',
+    color: '#9CA3AF',
   },
   itemCategory: {
     fontSize: 13,
@@ -222,41 +330,22 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   itemPrice: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: '700',
-    color: '#696a6b',
-    position: 'absolute',
-    bottom: 10,
-    right: 25,
+    color: '#4A90E2',
+  },
+  itemPriceBought: {
+    textDecorationLine: 'line-through',
+    color: '#9CA3AF',
   },
   pricePerKg: {
     fontSize: 11,
     color: '#9CA3AF',
     marginTop: 2,
   },
-  editButton:{
+  editButton: {
     padding: 8,
-    marginLeft: 4,
-    position: 'absolute',
-    top: 5,
-    right: 5,
-  },
-  itemCardBought: {
-    backgroundColor: '#F9FAFB',
-    opacity: 0.8,
-  },
-  boughtBadge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    zIndex: 10,
-  },
-  itemNameBought: {
-    textDecorationLine: 'line-through',
-    color: '#9CA3AF',
-  },
-  itemImageBought: {
-    opacity: 0.5,
+    marginLeft: 8,
   },
   footer: {
     backgroundColor: '#fff',
@@ -279,11 +368,6 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontWeight: '600',
   },
-  totalItems: {
-    fontSize: 13,
-    color: '#9CA3AF',
-    marginTop: 2,
-  },
   totalValue: {
     fontSize: 32,
     fontWeight: '700',
@@ -291,4 +375,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ListDetailsModal;
+export default ActiveListDetailsModal;

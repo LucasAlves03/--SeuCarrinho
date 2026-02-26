@@ -1,3 +1,4 @@
+// ✏️✏️✏️ NEW FILE
 import React, { useState } from 'react';
 import {
   View,
@@ -9,19 +10,19 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { formatCurrency } from '../utils/categories';
-import ListDetailsModal from '../components/ListDetailsModal';
+//import ActiveListDetailsModal from '../components/ActiveListDetailsModal';
 
-
-const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => {
+const ActiveListsScreen = ({ 
+  activeLists, 
+  onDeleteList, 
+  onEditItem,
+  onMarkAsBought 
+}) => {
   const [selectedList, setSelectedList] = useState(null);
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
 
   const calculateListTotal = (items) => {
     return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  };
-
-  const getItemCount = (items) => {
-    return items.reduce((sum, item) => sum + item.quantity, 0);
   };
 
   const handleViewDetails = (list) => {
@@ -30,7 +31,6 @@ const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => 
   };
 
   const getCategoryImages = (items) => {
-    // Get unique category images from items
     const uniqueCategories = [];
     const seenCategories = new Set();
     
@@ -41,16 +41,16 @@ const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => 
       }
     });
     
-    return uniqueCategories.slice(0, 5); // Maximum 5 images
+    return uniqueCategories.slice(0, 5);
   };
 
-  if (savedLists.length === 0) {
+  if (activeLists.length === 0) {
     return (
       <View style={styles.emptyContainer}>
-        <Ionicons name="receipt-outline" size={100} color="#E5E7EB" />
-        <Text style={styles.emptyTitle}>Nenhuma lista salva</Text>
+        <Ionicons name="cart-outline" size={100} color="#E5E7EB" />
+        <Text style={styles.emptyTitle}>Nenhuma lista ativa</Text>
         <Text style={styles.emptyText}>
-          Suas listas de compras salvas aparecerão aqui
+          Crie uma nova lista e comece suas compras!
         </Text>
       </View>
     );
@@ -59,58 +59,45 @@ const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => 
   return (
     <>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Histórico de Compras</Text>
-          <Text style={styles.subtitle}>
-            {savedLists.length} {savedLists.length === 1 ? 'lista salva' : 'listas salvas'}
-          </Text>
-        </View>
-
         <View style={styles.listsContainer}>
-          {/* ✏️✏️✏️ STEP 9 CHANGES START HERE */}
-          {savedLists.map((list) => {
-            // ✏️✏️✏️ Calculate bought status
-            const hasBoughtItems = list.items.some(item => item.bought);
+          {activeLists.map((list) => {
             const boughtCount = list.items.filter(item => item.bought).length;
-            const allBought = boughtCount === list.items.length;
+            const totalItems = list.items.length;
+            const progress = (boughtCount / totalItems) * 100;
 
             return (
               <View key={list.id} style={styles.listCard}>
-                {/* ✏️✏️✏️ ADD COMPLETED BADGE */}
-                {hasBoughtItems && (
-                  <View style={styles.completedBadge}>
-                    <Ionicons name="checkmark-circle" size={16} color="#10B981" />
-                    <Text style={styles.completedText}>
-                      {allBought ? 'Finalizada' : 'Em andamento'}
-                    </Text>
-                  </View>
-                )}
+                {/* Progress Badge */}
+                <View style={styles.progressBadge}>
+                  <Ionicons name="timer-outline" size={16} color="#4A90E2" />
+                  <Text style={styles.progressText}>
+                    {boughtCount}/{totalItems} comprados
+                  </Text>
+                </View>
 
                 <View style={styles.listHeader}>
                   <View style={styles.listIcon}>
-                    <Ionicons name="cart" size={28} color="#000000" />
+                    <Ionicons name="cart" size={28} color="#4A90E2" />
                   </View>
                   <View style={styles.listInfo}>
                     <Text style={styles.listName}>{list.name || 'Lista sem nome'}</Text>
                     <Text style={styles.listDate}>{list.date}</Text>
-                    {/* ✏️✏️✏️ UPDATE item count to show bought progress */}
-                    <Text style={styles.listItemCount}>
-                      {hasBoughtItems 
-                        ? `${boughtCount} de ${list.items.length} comprados`
-                        : `${list.items.length} ${list.items.length === 1 ? 'item' : 'itens'}`
-                      }
-                    </Text>
                   </View>
                   <TouchableOpacity
                     style={styles.deleteButton}
                     onPress={() => onDeleteList(list.id)}
                     activeOpacity={0.7}
                   >
-                    <Ionicons name="trash-outline" size={22} color="#545353" />
+                    <Ionicons name="trash-outline" size={22} color="#EF4444" />
                   </TouchableOpacity>
                 </View>
 
-                {/* Category Images Preview */}
+                {/* Progress Bar */}
+                <View style={styles.progressBarContainer}>
+                  <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
+                </View>
+
+                {/* Category Images */}
                 <View style={styles.listPreview}>
                   <ScrollView
                     horizontal
@@ -120,7 +107,7 @@ const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => 
                     {getCategoryImages(list.items).map((category, index) => (
                       <View key={index} style={styles.categoryBadge}>
                         <Image 
-                          source={category.image }
+                          source={{ uri: category.image }}
                           style={styles.categoryImage}
                         />
                       </View>
@@ -146,24 +133,24 @@ const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => 
                     onPress={() => handleViewDetails(list)}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.viewButtonText}>Ver detalhes</Text>
+                    <Text style={styles.viewButtonText}>Continuar</Text>
                     <Ionicons name="arrow-forward" size={18} color="#fff" />
                   </TouchableOpacity>
                 </View>
               </View>
             );
           })}
-          {/* ✏️✏️✏️ STEP 9 CHANGES END HERE */}
         </View>
       </ScrollView>
 
       {/* Details Modal */}
-      <ListDetailsModal
+      {/* <ActiveListDetailsModal
         visible={detailsModalVisible}
         onClose={() => setDetailsModalVisible(false)}
         list={selectedList}
         onEditItem={onEditItem}
-      />
+        onMarkAsBought={onMarkAsBought}
+      /> */}
     </>
   );
 };
@@ -173,35 +160,38 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FBFF',
   },
-  header: {
-    padding: 20,
-    paddingTop: 10,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6B7280',
-  },
   listsContainer: {
     padding: 20,
-    paddingTop: 0,
   },
   listCard: {
     backgroundColor: '#fff',
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#545454',
+    shadowColor: '#4A90E2',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
-    position: 'relative', // ✏️✏️✏️ ADD THIS for badge positioning
+    position: 'relative',
+  },
+  progressBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F4FD',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    gap: 4,
+    zIndex: 10,
+  },
+  progressText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#4A90E2',
   },
   listHeader: {
     flexDirection: 'row',
@@ -212,7 +202,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#eceff0',
+    backgroundColor: '#E8F4FD',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
@@ -229,15 +219,21 @@ const styles = StyleSheet.create({
   listDate: {
     fontSize: 13,
     color: '#6B7280',
-    marginBottom: 2,
-  },
-  listItemCount: {
-    fontSize: 13,
-    color: '#4A90E2',
-    fontWeight: '600',
   },
   deleteButton: {
     padding: 8,
+  },
+  progressBarContainer: {
+    height: 8,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 15,
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#10B981',
+    borderRadius: 4,
   },
   listPreview: {
     marginBottom: 15,
@@ -265,25 +261,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#4A90E2',
-  },
-  // ✏️✏️✏️ THESE STYLES WERE ALREADY IN YOUR FILE - KEEP THEM!
-  completedBadge: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#D1FAE5',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
-    gap: 4,
-    zIndex: 10,
-  },
-  completedText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#10B981',
   },
   listFooter: {
     flexDirection: 'row',
@@ -342,4 +319,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HistoryScreen;
+export default ActiveListsScreen;
