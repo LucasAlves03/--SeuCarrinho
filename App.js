@@ -175,7 +175,7 @@ export default function App() {
     setShowNameModal(false);
     setActiveTab("home");
 
-    Alert.alert("✅ Lista Ativa!", "Sua lista está ativa. Marque os itens conforme compra!");
+    Alert.alert("Lista Ativa!", "Sua lista está ativa. Marque os itens conforme compra!");
   };
 
   // ✏️✏️✏️ Mark item as bought in ACTIVE LIST
@@ -208,7 +208,7 @@ export default function App() {
     
     if (allBought) {
       Alert.alert(
-        '🎉 Lista Finalizada!',
+        ' Lista Finalizada!',
         'Todos os itens foram comprados! Esta lista foi movida para o histórico.',
         [{ text: 'OK' }]
       );

@@ -88,11 +88,6 @@ const AddItemScreen = ({
     setSelectedCategory(null);
     setSelectedUnit("unit");
 
-    // Show success
-    Alert.alert("Adicionado!", `${newItem.name} foi adicionado ao carrinho`, [
-      { text: "OK" },
-      { text: "Ver Carrinho", onPress: () => setCartModalVisible(true) },
-    ]);
   };
 
   const getTotalItems = () => {

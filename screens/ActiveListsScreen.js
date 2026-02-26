@@ -107,7 +107,7 @@ const ActiveListsScreen = ({
                     {getCategoryImages(list.items).map((category, index) => (
                       <View key={index} style={styles.categoryBadge}>
                         <Image 
-                          source={{ uri: category.image }}
+                          source={category.image }
                           style={styles.categoryImage}
                         />
                       </View>

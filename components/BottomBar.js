@@ -6,6 +6,7 @@ const BottomBar = ({ activeTab, onTabPress }) => {
   const tabs = [
     { id: 'home', icon: 'home', label: 'Menu' },
     { id: 'add', icon: 'add-circle', label: 'Adicionar' },
+    { id: 'active', icon: 'list', label: 'Listas' },
     { id: 'history', icon: 'time', label: 'Histórico' },
   ];
 
