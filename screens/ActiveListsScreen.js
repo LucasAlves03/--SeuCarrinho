@@ -1,28 +1,28 @@
 // ✏️✏️✏️ NEW FILE
-import React, { useState } from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
   Image,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { formatCurrency } from '../utils/categories';
-//import ActiveListDetailsModal from '../components/ActiveListDetailsModal';
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import ActiveListDetailsModal from "../components/ActiveListDetailsModal";
+import { formatCurrency } from "../utils/categories";
 
-const ActiveListsScreen = ({ 
-  activeLists, 
-  onDeleteList, 
+const ActiveListsScreen = ({
+  activeLists,
+  onDeleteList,
   onEditItem,
-  onMarkAsBought 
+  onMarkAsBought,
 }) => {
   const [selectedList, setSelectedList] = useState(null);
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
 
   const calculateListTotal = (items) => {
-    return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
   const handleViewDetails = (list) => {
@@ -33,14 +33,14 @@ const ActiveListsScreen = ({
   const getCategoryImages = (items) => {
     const uniqueCategories = [];
     const seenCategories = new Set();
-    
-    items.forEach(item => {
+
+    items.forEach((item) => {
       if (item.category && !seenCategories.has(item.category.id)) {
         seenCategories.add(item.category.id);
         uniqueCategories.push(item.category);
       }
     });
-    
+
     return uniqueCategories.slice(0, 5);
   };
 
@@ -61,7 +61,7 @@ const ActiveListsScreen = ({
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.listsContainer}>
           {activeLists.map((list) => {
-            const boughtCount = list.items.filter(item => item.bought).length;
+            const boughtCount = list.items.filter((item) => item.bought).length;
             const totalItems = list.items.length;
             const progress = (boughtCount / totalItems) * 100;
 
@@ -80,7 +80,9 @@ const ActiveListsScreen = ({
                     <Ionicons name="cart" size={28} color="#4A90E2" />
                   </View>
                   <View style={styles.listInfo}>
-                    <Text style={styles.listName}>{list.name || 'Lista sem nome'}</Text>
+                    <Text style={styles.listName}>
+                      {list.name || "Lista sem nome"}
+                    </Text>
                     <Text style={styles.listDate}>{list.date}</Text>
                   </View>
                   <TouchableOpacity
@@ -94,7 +96,9 @@ const ActiveListsScreen = ({
 
                 {/* Progress Bar */}
                 <View style={styles.progressBarContainer}>
-                  <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
+                  <View
+                    style={[styles.progressBarFill, { width: `${progress}%` }]}
+                  />
                 </View>
 
                 {/* Category Images */}
@@ -106,15 +110,17 @@ const ActiveListsScreen = ({
                   >
                     {getCategoryImages(list.items).map((category, index) => (
                       <View key={index} style={styles.categoryBadge}>
-                        <Image 
-                          source={category.image }
+                        <Image
+                          source={category.image}
                           style={styles.categoryImage}
                         />
                       </View>
                     ))}
                     {list.items.length > 5 && (
                       <View style={[styles.categoryBadge, styles.moreBadge]}>
-                        <Text style={styles.moreText}>+{list.items.length - 5}</Text>
+                        <Text style={styles.moreText}>
+                          +{list.items.length - 5}
+                        </Text>
                       </View>
                     )}
                   </ScrollView>
@@ -144,13 +150,13 @@ const ActiveListsScreen = ({
       </ScrollView>
 
       {/* Details Modal */}
-      {/* <ActiveListDetailsModal
+      <ActiveListDetailsModal
         visible={detailsModalVisible}
         onClose={() => setDetailsModalVisible(false)}
         list={selectedList}
         onEditItem={onEditItem}
         onMarkAsBought={onMarkAsBought}
-      /> */}
+      />
     </>
   );
 };
@@ -158,30 +164,30 @@ const ActiveListsScreen = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FBFF',
+    backgroundColor: "#F8FBFF",
   },
   listsContainer: {
     padding: 20,
   },
   listCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#4A90E2',
+    shadowColor: "#4A90E2",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
-    position: 'relative',
+    position: "relative",
   },
   progressBadge: {
-    position: 'absolute',
+    position: "absolute",
     top: 12,
     right: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E8F4FD',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E8F4FD",
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 12,
@@ -190,21 +196,21 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 11,
-    fontWeight: '600',
-    color: '#4A90E2',
+    fontWeight: "600",
+    color: "#4A90E2",
   },
   listHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 15,
   },
   listIcon: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#E8F4FD',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#E8F4FD",
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 15,
   },
   listInfo: {
@@ -212,27 +218,27 @@ const styles = StyleSheet.create({
   },
   listName: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#1F2937',
+    fontWeight: "700",
+    color: "#1F2937",
     marginBottom: 4,
   },
   listDate: {
     fontSize: 13,
-    color: '#6B7280',
+    color: "#6B7280",
   },
   deleteButton: {
     padding: 8,
   },
   progressBarContainer: {
     height: 8,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: "#E5E7EB",
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginBottom: 15,
   },
   progressBarFill: {
-    height: '100%',
-    backgroundColor: '#10B981',
+    height: "100%",
+    backgroundColor: "#10B981",
     borderRadius: 4,
   },
   listPreview: {
@@ -245,76 +251,76 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    overflow: 'hidden',
-    backgroundColor: '#F0F8FF',
+    overflow: "hidden",
+    backgroundColor: "#F0F8FF",
   },
   categoryImage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   moreBadge: {
-    backgroundColor: '#E8F4FD',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#E8F4FD",
+    justifyContent: "center",
+    alignItems: "center",
   },
   moreText: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#4A90E2',
+    fontWeight: "700",
+    color: "#4A90E2",
   },
   listFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingTop: 15,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: "#E5E7EB",
   },
   totalContainer: {
     flex: 1,
   },
   totalLabel: {
     fontSize: 12,
-    color: '#6B7280',
+    color: "#6B7280",
     marginBottom: 4,
   },
   totalValue: {
     fontSize: 22,
-    fontWeight: '700',
-    color: '#4A90E2',
+    fontWeight: "700",
+    color: "#4A90E2",
   },
   viewButton: {
-    backgroundColor: '#4A90E2',
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: "#4A90E2",
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 20,
     gap: 8,
   },
   viewButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   emptyContainer: {
     flex: 1,
-    backgroundColor: '#F8FBFF',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#F8FBFF",
+    alignItems: "center",
+    justifyContent: "center",
     padding: 40,
   },
   emptyTitle: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#1F2937',
+    fontWeight: "700",
+    color: "#1F2937",
     marginTop: 20,
     marginBottom: 10,
   },
   emptyText: {
     fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center',
+    color: "#6B7280",
+    textAlign: "center",
     lineHeight: 24,
   },
 });
