@@ -1,6 +1,5 @@
-// ✏️✏️✏️ NEW FILE
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -20,25 +19,37 @@ const ActiveListDetailsModal = ({
   list,
   onEditItem,
   onMarkAsBought,
+  onUnmarkAsBought,
 }) => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [itemToEdit, setItemToEdit] = useState(null);
 
-  if (!list) return null;
+  const [localList, setLocalList] = useState(list);
+
+  useEffect(() => {
+    setLocalList(list);
+  }, [list]);
+
+  if (!localList) return null;
 
   const calculateTotal = () => {
-    return list.items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    );
+    return localList.items
+      .filter((item) => item.bought)
+      .reduce((sum, item) => sum + item.price * item.quantity, 0);
+  };
+
+  const calculateRemainingTotal = () => {
+    return localList.items
+      .filter((item) => !item.bought)
+      .reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
   const getBoughtCount = () => {
-    return list.items.filter((item) => item.bought).length;
+    return localList.items.filter((item) => item.bought).length;
   };
 
   const getTotalItems = () => {
-    return list.items.length;
+    return localList.items.length;
   };
 
   const handleEditItem = (item) => {
@@ -55,29 +66,44 @@ const ActiveListDetailsModal = ({
   };
 
   const handleSaveEdit = (updatedItem) => {
-    if (onEditItem && list) {
-      onEditItem(list.id, updatedItem);
+    // Update local state immediately
+    const updatedItems = localList.items.map((i) =>
+      i.id === updatedItem.id ? updatedItem : i,
+    );
+    setLocalList({ ...localList, items: updatedItems });
+
+    // Then update parent
+    if (onEditItem && localList) {
+      onEditItem(localList.id, updatedItem);
     }
     setEditModalVisible(false);
   };
 
   const handleMarkAsBought = (item) => {
-    if (item.bought) return; // Already bought
+    if (item.bought) return;
+    const updatedItems = localList.items.map((i) =>
+      i.id === item.id ? { ...i, bought: true } : i,
+    );
+    setLocalList({ ...localList, items: updatedItems });
+    if (onMarkAsBought && localList) {
+      onMarkAsBought(list.id, item.id);
+    }
 
     Alert.alert(
-      "Marcar como Comprado?",
-      "Após marcar, você não poderá mais editar este item.",
+      "Item Comprado",
+      `${item.name} foi marcado como comprado.`,
       [
-        { text: "Cancelar", style: "cancel" },
+        { text: "Desfazer", style: "cancel" },
         {
-          text: "Confirmar",
           onPress: () => {
             if (onMarkAsBought && list) {
               onMarkAsBought(list.id, item.id);
             }
           },
         },
+        { text: "OK" },
       ],
+      { cancelable: true },
     );
   };
 
@@ -97,7 +123,7 @@ const ActiveListDetailsModal = ({
             </TouchableOpacity>
             <View>
               <Text style={styles.headerTitle}>
-                {list.name || "Lista de Compras"}
+                {localList.name || "Lista de Compras"}
               </Text>
               <Text style={styles.headerSubtitle}>
                 {getBoughtCount()} de {getTotalItems()} comprados
@@ -128,7 +154,7 @@ const ActiveListDetailsModal = ({
           style={styles.itemsList}
           showsVerticalScrollIndicator={false}
         >
-          {list.items.map((item, index) => (
+          {localList.items.map((item, index) => (
             <View
               key={item.id || index}
               style={[styles.itemCard, item.bought && styles.itemCardBought]}
@@ -206,11 +232,34 @@ const ActiveListDetailsModal = ({
 
         {/* Footer */}
         <View style={styles.footer}>
-          <View style={styles.totalContainer}>
-            <Text style={styles.totalLabel}>Total da Lista</Text>
-            <Text style={styles.totalValue}>
-              {formatCurrency(calculateTotal())}
-            </Text>
+          <View style={styles.totalsContainer}>
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>Comprado</Text>
+              <Text style={styles.totalBought}>
+                {formatCurrency(calculateTotal())}
+              </Text>
+            </View>
+
+            {calculateRemainingTotal() > 0 && (
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabelSecondary}>Faltam</Text>
+                <Text style={styles.totalRemaining}>
+                  {formatCurrency(calculateRemainingTotal())}
+                </Text>
+              </View>
+            )}
+
+            <View style={[styles.totalRow, styles.totalRowMain]}>
+              <Text style={styles.totalLabelMain}>Total da Lista</Text>
+              <Text style={styles.totalValue}>
+                {formatCurrency(
+                  localList.items.reduce(
+                    (sum, item) => sum + item.price * item.quantity,
+                    0,
+                  ),
+                )}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -233,11 +282,9 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#fff",
-    paddingTop: 60,
+    paddingTop: 20,
     paddingBottom: 20,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -277,7 +324,7 @@ const styles = StyleSheet.create({
   },
   progressBarFill: {
     height: "100%",
-    backgroundColor: "#10B981",
+    backgroundColor: "#156ae3",
     borderRadius: 6,
   },
   progressText: {
@@ -321,8 +368,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   checkboxBoxChecked: {
-    backgroundColor: "#10B981",
-    borderColor: "#10B981",
+    backgroundColor: "#156ae3",
+    borderColor: "#00000021",
   },
   itemImage: {
     width: 70,
@@ -402,9 +449,44 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   totalValue: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: "700",
     color: "#1F2937",
+  },
+  totalsContainer: {
+    width: "100%",
+  },
+  totalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  totalRowMain: {
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#E5E7EB",
+    marginTop: 4,
+  },
+  totalBought: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#10B981",
+  },
+  totalLabelSecondary: {
+    fontSize: 14,
+    color: "#9CA3AF",
+    fontWeight: "500",
+  },
+  totalRemaining: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#6B7280",
+  },
+  totalLabelMain: {
+    fontSize: 16,
+    color: "#1F2937",
+    fontWeight: "700",
   },
 });
 

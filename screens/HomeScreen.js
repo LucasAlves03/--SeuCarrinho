@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { use, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
+import {Gesture, GestureDetector} from 'react-native-gesture-handler'
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from "react-native-reanimated";
 const HomeScreen = ({
   onStartNewList,
   activeLists,
@@ -16,6 +17,25 @@ const HomeScreen = ({
   onViewExpiredList,
 }) => {
   const [selectedTab, setSelectedTab] = useState("ativas");
+  const translateX = useSharedValue(0);
+  const panGesture = Gesture.Pan().onUpdate((e) => {
+    translateX.value = e.translationX;
+  }).onEnd((e) => {
+    if(e.translationX > 50) {
+      runOnJS(setSelectedTab)('ativas');
+    }else if(e.translationX < -50){
+      runOnJS(setSelectedTab)('expiradas');
+    }
+    translateX.value = withSpring(0);
+  })
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: translateX.value}],
+    }
+  })
+
+  
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -92,8 +112,10 @@ const HomeScreen = ({
             )}
           </TouchableOpacity>
         </View>
+        <GestureDetector gesture={panGesture}>
+          <Animated.View style={[styles.tabContent, animatedStyle]}>
 
-        <View style={styles.tabContent}>
+         
           {selectedTab === "ativas" ? (
             activeLists.length > 0 ? (
               <View>
@@ -217,9 +239,9 @@ const HomeScreen = ({
               >
                 <Text style={styles.viewAllButtonText}>
                   {" "}
-                  Ver Todo o Histórico
+                  Ver Todo o Histórico 
                 </Text>
-                <Ionicons name="arrow-forward" size={18} color="#4A90E2" />
+                
               </TouchableOpacity>
             </View>
           ) : (
@@ -233,7 +255,8 @@ const HomeScreen = ({
               </Text>
             </View>
           )}
-        </View>
+         </Animated.View>
+        </GestureDetector>
       </View>
 
       {/* <View style={styles.features}>
@@ -467,7 +490,7 @@ const styles = StyleSheet.create({
   },
   miniProgressFill: {
     height: "100%",
-    backgroundColor: "#10b981",
+    backgroundColor: "#156ae3",
     borderRadius: 3,
   },
   moreListsText: {

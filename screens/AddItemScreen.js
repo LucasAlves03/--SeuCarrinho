@@ -16,6 +16,7 @@ import CartModal from "../components/CartPop";
 import CategoryPicker from "../components/CategoryPicker";
 import FloatingCartButton from "../components/FloatingCartButton";
 import UnitPicker from "../components/UnitPicker";
+import Toast from "../components/Toast";
 import {
   generateId,
   suggestCategory,
@@ -38,6 +39,9 @@ const AddItemScreen = ({
   const [cartModalVisible, setCartModalVisible] = useState(false);
   const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
   const [unitPickerVisible, setUnitPickerVisible] = useState(false);
+
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   // Auto-suggest category when name changes
   const handleNameChange = (text) => {
@@ -80,6 +84,8 @@ const AddItemScreen = ({
     };
 
     onAddItem(newItem);
+    setToastMessage("Item Adicionado com Sucesso!")
+    setShowToast(true);
 
     // Reset form
     setItemName("");
@@ -128,6 +134,7 @@ const AddItemScreen = ({
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
+      <Toast visible={showToast} message={toastMessage} onHide={() => setShowToast(false)} />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}

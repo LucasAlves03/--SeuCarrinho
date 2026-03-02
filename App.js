@@ -11,6 +11,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
 
 import BottomBar from "./components/BottomBar";
 import Header from "./components/Header";
@@ -54,7 +56,6 @@ export default function App() {
     }
   };
 
-  // ✏️✏️✏️ SAVE to AsyncStorage
   const saveActiveListsToStorage = async (lists) => {
     try {
       await AsyncStorage.setItem('activeLists', JSON.stringify(lists));
@@ -129,6 +130,22 @@ export default function App() {
     ]);
   };
 
+  const handleUnmarkAsBoughtList = (listId, itemId) => {
+    const updatedLists = activeLists.map((list) => {
+      if(list.id === listId) {
+        return {
+          ...list,
+          items: list.items.map((item) => 
+          item.id === itemId ? {...item, bought: false} : item ),
+        }
+      }
+      return list;
+    })
+
+    setActiveLists(updatedLists);
+    saveActiveListsToStorage(updatedLists);
+  }
+
   // ✏️✏️✏️ Edit item in current cart
   const handleEditItem = (updatedItem) => {
     const item = currentList.find(i => i.id === updatedItem.id);
@@ -194,6 +211,33 @@ export default function App() {
     
     setActiveLists(updatedLists);
     saveActiveListsToStorage(updatedLists);
+    const updatedList = updatedLists.find(l => l.id === listId);
+  if (updatedList) {
+    const allBought = updatedList.items.every(item => item.bought);
+    
+    if (allBought) {
+      // Move to expired immediately
+      Alert.alert(
+        '🎉 Lista Finalizada!',
+        'Todos os itens foram comprados! Esta lista foi movida para o histórico.',
+        [{ text: 'OK' }]
+      );
+      
+      const expiredList = { 
+        ...updatedList, 
+        status: 'expired', 
+        completedDate: new Date().toLocaleDateString('pt-BR') 
+      };
+      const newExpired = [expiredList, ...expiredLists];
+      const newActive = updatedLists.filter(l => l.id !== listId);
+      
+      setExpiredLists(newExpired);
+      setActiveLists(newActive);
+      
+      saveExpiredListsToStorage(newExpired);
+      saveActiveListsToStorage(newActive);
+    }
+  }
     
     // Check if list should expire
     checkAndExpireList(listId, updatedLists);
@@ -340,6 +384,7 @@ export default function App() {
             onDeleteList={handleDeleteActiveList}
             onEditItem={handleEditItemInActiveList}
             onMarkAsBought={handleMarkAsBoughtInActiveList}
+            onUnmarkAsBought={handleUnmarkAsBoughtList}
           />
         );
       case "history":
@@ -369,6 +414,8 @@ export default function App() {
   }
 
   return (
+    <GestureHandlerRootView style={{flex: 1}}>
+
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={["top"]}>
         <StatusBar style="dark" />
@@ -422,6 +469,8 @@ export default function App() {
         </Modal>
       </SafeAreaView>
     </SafeAreaProvider>
+    </GestureHandlerRootView>
+
   );
 }
 
