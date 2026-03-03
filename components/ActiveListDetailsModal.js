@@ -20,6 +20,7 @@ const ActiveListDetailsModal = ({
   onEditItem,
   onMarkAsBought,
   onUnmarkAsBought,
+  onDeleteItem
 }) => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [itemToEdit, setItemToEdit] = useState(null);
@@ -80,31 +81,33 @@ const ActiveListDetailsModal = ({
   };
 
   const handleMarkAsBought = (item) => {
-    if (item.bought) return;
-    const updatedItems = localList.items.map((i) =>
-      i.id === item.id ? { ...i, bought: true } : i,
-    );
-    setLocalList({ ...localList, items: updatedItems });
-    if (onMarkAsBought && localList) {
-      onMarkAsBought(list.id, item.id);
-    }
+    if (item.bought){
+    
+    const updatedItems = localList.items.map(i =>
+      i.id === item.id ? { ...i, bought: false } : i );
+      setLocalList({ ...localList, items: updatedItems });
 
-    Alert.alert(
-      "Item Comprado",
-      `${item.name} foi marcado como comprado.`,
-      [
-        { text: "Desfazer", style: "cancel" },
-        {
-          onPress: () => {
-            if (onMarkAsBought && list) {
-              onMarkAsBought(list.id, item.id);
-            }
-          },
-        },
-        { text: "OK" },
-      ],
-      { cancelable: true },
+    if (onUnmarkAsBought && localList) {
+      onUnmarkAsBought(localList.id, item.id);
+    }
+  } else {
+    const updatedItems = localList.items.map(i => 
+      i.id === item.id ? {...i, bought: true } : i
     );
+    setLocalList({ ...localList, items: updatedItems});
+    
+      if(onMarkAsBought && localList) {
+        onMarkAsBought(localList.id, item.id);
+      }
+    } 
+
+  };
+
+  const handleDeleteItem = (item) => {
+    if(onDeleteItem && localList) {
+      const updatedItems = localList.items.filter(i => i.id !== item.id);
+      setLocalList({...localList, items: updatedItems});
+    }
   };
 
   return (
@@ -163,7 +166,6 @@ const ActiveListDetailsModal = ({
               <TouchableOpacity
                 style={styles.checkbox}
                 onPress={() => handleMarkAsBought(item)}
-                disabled={item.bought}
               >
                 <View
                   style={[
@@ -171,9 +173,7 @@ const ActiveListDetailsModal = ({
                     item.bought && styles.checkboxBoxChecked,
                   ]}
                 >
-                  {item.bought && (
-                    <Ionicons name="checkmark" size={18} color="#fff" />
-                  )}
+                  {item.bought && <Ionicons name="checkmark" size={18} color="#fff" />}
                 </View>
               </TouchableOpacity>
 
@@ -218,12 +218,16 @@ const ActiveListDetailsModal = ({
               </View>
 
               {/* Edit Button - hide if bought */}
-              {!item.bought && (
+              {!item.bought ? (
                 <TouchableOpacity
                   style={styles.editButton}
                   onPress={() => handleEditItem(item)}
                 >
                   <Ionicons name="create-outline" size={22} color="#4A90E2" />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteItem(item)}>
+                  <Ionicons name="trash-outline" size={22} color="#ef4444"/>
                 </TouchableOpacity>
               )}
             </View>
@@ -427,6 +431,10 @@ const styles = StyleSheet.create({
     padding: 8,
     marginLeft: 8,
   },
+  deleteButton: {
+      padding: 8,
+      marginLeft: 8,
+    },
   footer: {
     backgroundColor: "#fff",
     padding: 20,

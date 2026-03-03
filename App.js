@@ -130,13 +130,14 @@ export default function App() {
     ]);
   };
 
-  const handleUnmarkAsBoughtList = (listId, itemId) => {
+  const handleUnmarkAsBoughtInActiveList = (listId, itemId) => {
     const updatedLists = activeLists.map((list) => {
       if(list.id === listId) {
+        const updatedItems = list.items.map((item) =>
+          item.id === itemId ? {...item, bought: false } : item );
         return {
           ...list,
-          items: list.items.map((item) => 
-          item.id === itemId ? {...item, bought: false} : item ),
+          items: updatedItems,
         }
       }
       return list;
@@ -195,15 +196,15 @@ export default function App() {
     Alert.alert("Lista Ativa!", "Sua lista está ativa. Marque os itens conforme compra!");
   };
 
-  // ✏️✏️✏️ Mark item as bought in ACTIVE LIST
   const handleMarkAsBoughtInActiveList = (listId, itemId) => {
     const updatedLists = activeLists.map((list) => {
       if (list.id === listId) {
+        const updatedItems = list.items.map((item => 
+          item.id === itemId ? {...item, bought: true} : item
+        ));
         return {
           ...list,
-          items: list.items.map((item) =>
-            item.id === itemId ? { ...item, bought: true } : item
-          ),
+          items: updatedItems,
         };
       }
       return list;
@@ -211,12 +212,16 @@ export default function App() {
     
     setActiveLists(updatedLists);
     saveActiveListsToStorage(updatedLists);
-    const updatedList = updatedLists.find(l => l.id === listId);
-  if (updatedList) {
-    const allBought = updatedList.items.every(item => item.bought);
+
     
-    if (allBought) {
-      // Move to expired immediately
+  const updatedList = updatedLists.find(l => l.id === listId);
+  if (updatedList) {
+    const allBought = updatedList.items.every(item => item.bought === true);
+    const totalItems = updatedList.items.length;
+    const boughtCount = updatedList.items.filter(item => item.bought === true).length;
+
+    
+    if (allBought && boughtCount === totalItems && totalItems > 0) {
       Alert.alert(
         '🎉 Lista Finalizada!',
         'Todos os itens foram comprados! Esta lista foi movida para o histórico.',
@@ -228,6 +233,7 @@ export default function App() {
         status: 'expired', 
         completedDate: new Date().toLocaleDateString('pt-BR') 
       };
+
       const newExpired = [expiredList, ...expiredLists];
       const newActive = updatedLists.filter(l => l.id !== listId);
       
@@ -238,43 +244,77 @@ export default function App() {
       saveActiveListsToStorage(newActive);
     }
   }
-    
-    // Check if list should expire
-    checkAndExpireList(listId, updatedLists);
+    // checkAndExpireList(listId, updatedLists);
   };
 
-  // ✏️✏️✏️ Check if list is complete and move to expired
-  const checkAndExpireList = (listId, lists) => {
-    const list = lists.find(l => l.id === listId);
-    if (!list) return;
-    
-    const allBought = list.items.every(item => item.bought);
-    
-    if (allBought) {
-      Alert.alert(
-        ' Lista Finalizada!',
-        'Todos os itens foram comprados! Esta lista foi movida para o histórico.',
-        [{ text: 'OK' }]
-      );
-      
-      // Move to expired
-      const expiredList = { 
-        ...list, 
-        status: 'expired', 
-        completedDate: new Date().toLocaleDateString('pt-BR') 
-      };
-      const newExpired = [expiredList, ...expiredLists];
-      const newActive = lists.filter(l => l.id !== listId);
-      
-      setExpiredLists(newExpired);
-      setActiveLists(newActive);
-      
-      saveExpiredListsToStorage(newExpired);
-      saveActiveListsToStorage(newActive);
-    }
-  };
+const handleDeleteItemFromActiveList = (listId, itemId) => {
+  Alert.alert(
+    'Remover item',
+    'Deseja remover este item da lista?',
+    [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Remover',
+        style: 'destructive',
+        onPress: () => {
+          const updatedLists = activeLists.map((list) => {
+            if (list.id === listId) {
+              return {
+                ...list,
+                items: list.items.filter((item) => item.id !== itemId),
+              };
+            }
+            return list;
+          });
+          
+          setActiveLists(updatedLists);
+          saveActiveListsToStorage(updatedLists);
+          
+          // ✏️✏️✏️ CHECK IF LIST SHOULD BE COMPLETED AFTER DELETION
+          const updatedList = updatedLists.find(l => l.id === listId);
+          if (updatedList && updatedList.items.length > 0) {
+            const allBought = updatedList.items.every(item => item.bought === true);
+            
+            if (allBought) {
+              // All remaining items are bought - move to expired
+              Alert.alert(
+                '🎉 Lista Finalizada!',
+                'Todos os itens restantes foram comprados! Esta lista foi movida para o histórico.',
+                [{ text: 'OK' }]
+              );
+              
+              const expiredList = { 
+                ...updatedList, 
+                status: 'expired', 
+                completedDate: new Date().toLocaleDateString('pt-BR') 
+              };
+              const newExpired = [expiredList, ...expiredLists];
+              const newActive = updatedLists.filter(l => l.id !== listId);
+              
+              setExpiredLists(newExpired);
+              setActiveLists(newActive);
+              
+              saveExpiredListsToStorage(newExpired);
+              saveActiveListsToStorage(newActive);
+            }
+          } else if (updatedList && updatedList.items.length === 0) {
+            // ✏️✏️✏️ IF LIST IS NOW EMPTY - REMOVE IT COMPLETELY
+            Alert.alert(
+              'Lista Vazia',
+              'A lista ficou vazia e foi removida.',
+              [{ text: 'OK' }]
+            );
+            
+            const newActive = updatedLists.filter(l => l.id !== listId);
+            setActiveLists(newActive);
+            saveActiveListsToStorage(newActive);
+          }
+        },
+      },
+    ]
+  );
+};
 
-  // ✏️✏️✏️ Edit item in ACTIVE LIST
   const handleEditItemInActiveList = (listId, updatedItem) => {
     const list = activeLists.find(l => l.id === listId);
     
@@ -384,7 +424,8 @@ export default function App() {
             onDeleteList={handleDeleteActiveList}
             onEditItem={handleEditItemInActiveList}
             onMarkAsBought={handleMarkAsBoughtInActiveList}
-            onUnmarkAsBought={handleUnmarkAsBoughtList}
+            onUnmarkAsBought={handleUnmarkAsBoughtInActiveList}
+            onDeleteItem={handleDeleteItemFromActiveList}
           />
         );
       case "history":

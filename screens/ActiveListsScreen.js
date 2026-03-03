@@ -17,7 +17,8 @@ const ActiveListsScreen = ({
   onDeleteList,
   onEditItem,
   onMarkAsBought,
-  onUnmarkAsBought  
+  onUnmarkAsBought,
+  onDeleteItem 
 }) => {
   const [selectedList, setSelectedList] = useState(null);
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
@@ -158,6 +159,7 @@ const ActiveListsScreen = ({
         onEditItem={onEditItem}
         onMarkAsBought={onMarkAsBought}
         onUnmarkAsBought={onUnmarkAsBought}
+        onDeleteItem={onDeleteItem}
       />
     </>
   );
