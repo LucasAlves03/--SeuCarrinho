@@ -14,24 +14,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { formatCurrency, formatQuantity } from '../utils/categories';
 import EditItemModal  from './EditItemModal';
 
-const CartPop = ({ visible, onClose, items, onDeleteItem, onSaveList, onEditItem, onMarkAsBought }) => {
+const CartPop = ({ visible, onClose, items, onDeleteItem, onSaveList, onEditItem }) => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [itemToEdit, setItemToEdit] = useState(null);
 
   const calculateTotal = () => {
     return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   };
-  const getBoughtCount = () => {
-    return items.filter(item => item.bought).length;
-  }
+
   const getTotalItems = () => {
     return items.reduce((sum, item) => sum + item.quantity, 0);
   };
   const handleEditItem = (item) => {
-    if(item.bought){
-      Alert.alert("Item Comprado", "Não é possível editar um item marcado como comprado.", [{text: 'OK'}]);
-      return;
-    }
     setItemToEdit(item);
     setEditModalVisible(true);
   };
@@ -58,7 +52,7 @@ const CartPop = ({ visible, onClose, items, onDeleteItem, onSaveList, onEditItem
             <View>
               <Text style={styles.headerTitle}>Seu Carrinho</Text>
               <Text style={styles.headerSubtitle}>
-                {getBoughtCount()} de {getTotalItems()} {getTotalItems() === 1 ? 'Item comprado' : 'Itens Comprados'}
+                {getTotalItems()} {getTotalItems() === 1 ? 'Item' : 'Itens'}
               </Text>
             </View>
           </View>
@@ -77,52 +71,33 @@ const CartPop = ({ visible, onClose, items, onDeleteItem, onSaveList, onEditItem
           <>
             <ScrollView style={styles.itemsList} contentContainerStyle={styles.itemsListContent} showsVerticalScrollIndicator={false}>
               {items.map((item) => (
-                <View key={item.id} style={[styles.cartItem, item.bought && styles.cartItemBought]}>
-                  <TouchableOpacity style={styles.checkbox} onPress={() => {
-                    if(!item.bought) {
-                      Alert.alert(
-                        'Marcar como Comprado?',
-                        'Após marcar, você não poderá mais editar ou remover este item.',
-                        [
-                          { text: 'Cancelar', style: 'cancel' },
-                          {
-                            text: 'Confirmar',
-                            onPress: () => onMarkAsBought(item.id),
-                          },
-                        ]
-                      );
-                    }
-                  }} disabled={item.bought}>
-                    <View style={[styles.checkboxBox, item.bought && styles.checkboxBoxChecked]}>
-                      {item.bought && <Ionicons name="checkmark" size={18} color="#ff0000" />}
-                    </View>
-                  </TouchableOpacity>
+                <View key={item.id} style={styles.cartItem}>
+                 
                   <Image
                     source={item.category.image }
-                    style={[styles.itemImage, item.bought && styles.itemImageBought]}
+                    style={styles.itemImage}
                   />
                   <View style={styles.itemInfo}>
-                    <Text style={[styles.itemName, item.bought && styles.itemNameBought]}>{item.name}</Text>
+                    <Text style={styles.itemName}>{item.name}</Text>
                     <Text style={styles.itemCategory}>{item.category.name}</Text>
                     <View style={styles.itemPriceRow}>
                       <Text style={styles.itemQuantity}>
                         {formatQuantity(item.quantity, item.unit)}
                       </Text>
-                      <Text style={[styles.itemPrice, item.bought && styles.itemPriceBought]}>
+                      <Text style={styles.itemPrice}>
                         {formatCurrency(item.price * item.quantity)}
                       </Text>
                     </View>
                     <TouchableOpacity 
-                     style={[styles.editButton, item.bought && styles.buttonDisabled]}
+                     style={styles.editButton}
                       onPress={() => handleEditItem(item)}>
-                      <Ionicons name="create-outline" size={22} color={item.bought ? '#444444' : '#4A90E2'} />
+                      <Ionicons name="create-outline" size={22} color='#4A90E2' />
                     </TouchableOpacity>
                   </View>
 
                   <TouchableOpacity
-                    style={[styles.deleteButton, item.bought && styles.buttonDisabled]}
+                    style={styles.deleteButton}
                     onPress={() => onDeleteItem(item.id)}
-                    disabled={item.bought}
                   >
                     <Ionicons name="close-sharp" size={22}  color='#ffffff'/>
                   </TouchableOpacity>
@@ -281,48 +256,6 @@ const styles = StyleSheet.create({
     bottom: 50,
     right: 20,
   },
-  cartItemBought: {
-    opacity: 0.6,
-    backgroundColor: '#F9FAFB',
-  },
-
-  // ✏️✏️✏️ CHECKBOX STYLES
-  checkbox: {
-    marginRight: 12,
-  },
-  checkboxBox: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    borderWidth: 2,
-    borderColor: '#D1D5DB',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  checkboxBoxChecked: {
-    backgroundColor: '#10B981',
-    borderColor: '#10B981',
-  },
-
-  // ✏️✏️✏️ BOUGHT TEXT STYLES
-  itemNameBought: {
-    textDecorationLine: 'line-through',
-    color: '#9CA3AF',
-  },
-  itemPriceBought: {
-    textDecorationLine: 'line-through',
-    color: '#9CA3AF',
-  },
-  itemImageBought: {
-    opacity: 0.5,
-  },
-
-  // ✏️✏️✏️ DISABLED BUTTON STYLE
-  buttonDisabled: {
-    opacity: 0.3,
-  },
-  
   footer: {
     backgroundColor: '#fff',
     padding: 20,
