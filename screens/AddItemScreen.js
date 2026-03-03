@@ -29,7 +29,6 @@ const AddItemScreen = ({
   onDeleteItem,
   onSaveList,
   onEditItem,
-  onMarkAsBought
 }) => {
   const [itemName, setItemName] = useState("");
   const [itemPrice, setItemPrice] = useState("");
@@ -261,7 +260,6 @@ const AddItemScreen = ({
         onDeleteItem={onDeleteItem}
         onSaveList={onSaveList}
         onEditItem={onEditItem}
-        onMarkAsBought={onMarkAsBought}
       />
 
       <CategoryPicker

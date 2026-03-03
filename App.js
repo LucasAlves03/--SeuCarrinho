@@ -10,17 +10,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 import BottomBar from "./components/BottomBar";
 import Header from "./components/Header";
 import Splash from "./components/Splash";
+import ActiveListsScreen from "./screens/ActiveListsScreen";
 import AddItemScreen from "./screens/AddItemScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import HomeScreen from "./screens/HomeScreen";
-import ActiveListsScreen from "./screens/ActiveListsScreen";
 import { generateId } from "./utils/categories";
 
 export default function App() {
@@ -29,7 +28,7 @@ export default function App() {
   const [currentList, setCurrentList] = useState([]);
   const [showNameModal, setShowNameModal] = useState(false);
   const [listName, setListName] = useState("");
-  
+
   // ✏️✏️✏️ SEPARATED: Active vs Expired lists
   const [activeLists, setActiveLists] = useState([]);
   const [expiredLists, setExpiredLists] = useState([]);
@@ -42,9 +41,9 @@ export default function App() {
   // ✏️✏️✏️ LOAD from AsyncStorage
   const loadSavedLists = async () => {
     try {
-      const active = await AsyncStorage.getItem('activeLists');
-      const expired = await AsyncStorage.getItem('expiredLists');
-      
+      const active = await AsyncStorage.getItem("activeLists");
+      const expired = await AsyncStorage.getItem("expiredLists");
+
       if (active) {
         setActiveLists(JSON.parse(active));
       }
@@ -52,23 +51,23 @@ export default function App() {
         setExpiredLists(JSON.parse(expired));
       }
     } catch (error) {
-      console.log('Error loading lists:', error);
+      console.log("Error loading lists:", error);
     }
   };
 
   const saveActiveListsToStorage = async (lists) => {
     try {
-      await AsyncStorage.setItem('activeLists', JSON.stringify(lists));
+      await AsyncStorage.setItem("activeLists", JSON.stringify(lists));
     } catch (error) {
-      console.log('Error saving active lists:', error);
+      console.log("Error saving active lists:", error);
     }
   };
 
   const saveExpiredListsToStorage = async (lists) => {
     try {
-      await AsyncStorage.setItem('expiredLists', JSON.stringify(lists));
+      await AsyncStorage.setItem("expiredLists", JSON.stringify(lists));
     } catch (error) {
-      console.log('Error saving expired lists:', error);
+      console.log("Error saving expired lists:", error);
     }
   };
 
@@ -89,35 +88,25 @@ export default function App() {
 
   // ✏️✏️✏️ Mark item as bought in CURRENT CART
   const handleMarkAsBought = (itemId) => {
-    const updatedList = currentList.map((item) => 
-      item.id === itemId ? {...item, bought: true} : item
+    const updatedList = currentList.map((item) =>
+      item.id === itemId ? { ...item, bought: true } : item,
     );
-    
+
     setCurrentList(updatedList);
-    
+
     // Check if ALL items are bought
-    const allBought = updatedList.every(item => item.bought);
+    const allBought = updatedList.every((item) => item.bought);
     if (allBought) {
       Alert.alert(
-        '🎉 Todos comprados!',
-        'Salve a lista para movê-la para o histórico.',
-        [{ text: 'OK' }]
+        "🎉 Todos comprados!",
+        "Salve a lista para movê-la para o histórico.",
+        [{ text: "OK" }],
       );
     }
   };
 
   // ✏️✏️✏️ Delete item from current cart
   const handleDeleteItem = (itemId) => {
-    const item = currentList.find(i => i.id === itemId);
-    if (item?.bought) {
-      Alert.alert(
-        "Item Comprado", 
-        "Não é possível remover itens marcados como comprados.", 
-        [{ text: 'OK' }]
-      );
-      return;
-    }
-    
     Alert.alert("Remover item", "Deseja remover este item da lista?", [
       { text: "Cancelar", style: "cancel" },
       {
@@ -132,37 +121,28 @@ export default function App() {
 
   const handleUnmarkAsBoughtInActiveList = (listId, itemId) => {
     const updatedLists = activeLists.map((list) => {
-      if(list.id === listId) {
+      if (list.id === listId) {
         const updatedItems = list.items.map((item) =>
-          item.id === itemId ? {...item, bought: false } : item );
+          item.id === itemId ? { ...item, bought: false } : item,
+        );
         return {
           ...list,
           items: updatedItems,
-        }
+        };
       }
       return list;
-    })
+    });
 
     setActiveLists(updatedLists);
     saveActiveListsToStorage(updatedLists);
-  }
+  };
 
   // ✏️✏️✏️ Edit item in current cart
   const handleEditItem = (updatedItem) => {
-    const item = currentList.find(i => i.id === updatedItem.id);
-    if (item?.bought) {
-      Alert.alert(
-        "Atenção", 
-        "Não é possível editar um item marcado como comprado.",
-        [{ text: 'OK' }] 
-      );
-      return;
-    }
-    
     setCurrentList(
       currentList.map((item) =>
-        item.id === updatedItem.id ? updatedItem : item
-      )
+        item.id === updatedItem.id ? updatedItem : item,
+      ),
     );
   };
 
@@ -181,7 +161,7 @@ export default function App() {
       date: new Date().toLocaleDateString("pt-BR"),
       items: currentList,
       name: listName.trim() || "Compras sem nome",
-      status: 'active',
+      status: "active",
     };
 
     const updatedLists = [newList, ...activeLists];
@@ -193,15 +173,18 @@ export default function App() {
     setShowNameModal(false);
     setActiveTab("home");
 
-    Alert.alert("Lista Ativa!", "Sua lista está ativa. Marque os itens conforme compra!");
+    Alert.alert(
+      "Lista Ativa!",
+      "Sua lista está ativa. Marque os itens conforme compra!",
+    );
   };
 
   const handleMarkAsBoughtInActiveList = (listId, itemId) => {
     const updatedLists = activeLists.map((list) => {
       if (list.id === listId) {
-        const updatedItems = list.items.map((item => 
-          item.id === itemId ? {...item, bought: true} : item
-        ));
+        const updatedItems = list.items.map((item) =>
+          item.id === itemId ? { ...item, bought: true } : item,
+        );
         return {
           ...list,
           items: updatedItems,
@@ -209,53 +192,50 @@ export default function App() {
       }
       return list;
     });
-    
+
     setActiveLists(updatedLists);
     saveActiveListsToStorage(updatedLists);
 
-    
-  const updatedList = updatedLists.find(l => l.id === listId);
-  if (updatedList) {
-    const allBought = updatedList.items.every(item => item.bought === true);
-    const totalItems = updatedList.items.length;
-    const boughtCount = updatedList.items.filter(item => item.bought === true).length;
+    const updatedList = updatedLists.find((l) => l.id === listId);
+    if (updatedList) {
+      const allBought = updatedList.items.every((item) => item.bought === true);
+      const totalItems = updatedList.items.length;
+      const boughtCount = updatedList.items.filter(
+        (item) => item.bought === true,
+      ).length;
 
-    
-    if (allBought && boughtCount === totalItems && totalItems > 0) {
-      Alert.alert(
-        '🎉 Lista Finalizada!',
-        'Todos os itens foram comprados! Esta lista foi movida para o histórico.',
-        [{ text: 'OK' }]
-      );
-      
-      const expiredList = { 
-        ...updatedList, 
-        status: 'expired', 
-        completedDate: new Date().toLocaleDateString('pt-BR') 
-      };
+      if (allBought && boughtCount === totalItems && totalItems > 0) {
+        Alert.alert(
+          "🎉 Lista Finalizada!",
+          "Todos os itens foram comprados! Esta lista foi movida para o histórico.",
+          [{ text: "OK" }],
+        );
 
-      const newExpired = [expiredList, ...expiredLists];
-      const newActive = updatedLists.filter(l => l.id !== listId);
-      
-      setExpiredLists(newExpired);
-      setActiveLists(newActive);
-      
-      saveExpiredListsToStorage(newExpired);
-      saveActiveListsToStorage(newActive);
+        const expiredList = {
+          ...updatedList,
+          status: "expired",
+          completedDate: new Date().toLocaleDateString("pt-BR"),
+        };
+
+        const newExpired = [expiredList, ...expiredLists];
+        const newActive = updatedLists.filter((l) => l.id !== listId);
+
+        setExpiredLists(newExpired);
+        setActiveLists(newActive);
+
+        saveExpiredListsToStorage(newExpired);
+        saveActiveListsToStorage(newActive);
+      }
     }
-  }
     // checkAndExpireList(listId, updatedLists);
   };
 
-const handleDeleteItemFromActiveList = (listId, itemId) => {
-  Alert.alert(
-    'Remover item',
-    'Deseja remover este item da lista?',
-    [
-      { text: 'Cancelar', style: 'cancel' },
+  const handleDeleteItemFromActiveList = (listId, itemId) => {
+    Alert.alert("Remover item", "Deseja remover este item da lista?", [
+      { text: "Cancelar", style: "cancel" },
       {
-        text: 'Remover',
-        style: 'destructive',
+        text: "Remover",
+        style: "destructive",
         onPress: () => {
           const updatedLists = activeLists.map((list) => {
             if (list.id === listId) {
@@ -266,69 +246,68 @@ const handleDeleteItemFromActiveList = (listId, itemId) => {
             }
             return list;
           });
-          
+
           setActiveLists(updatedLists);
           saveActiveListsToStorage(updatedLists);
-          
+
           // ✏️✏️✏️ CHECK IF LIST SHOULD BE COMPLETED AFTER DELETION
-          const updatedList = updatedLists.find(l => l.id === listId);
+          const updatedList = updatedLists.find((l) => l.id === listId);
           if (updatedList && updatedList.items.length > 0) {
-            const allBought = updatedList.items.every(item => item.bought === true);
-            
+            const allBought = updatedList.items.every(
+              (item) => item.bought === true,
+            );
+
             if (allBought) {
               // All remaining items are bought - move to expired
               Alert.alert(
-                '🎉 Lista Finalizada!',
-                'Todos os itens restantes foram comprados! Esta lista foi movida para o histórico.',
-                [{ text: 'OK' }]
+                "🎉 Lista Finalizada!",
+                "Todos os itens restantes foram comprados! Esta lista foi movida para o histórico.",
+                [{ text: "OK" }],
               );
-              
-              const expiredList = { 
-                ...updatedList, 
-                status: 'expired', 
-                completedDate: new Date().toLocaleDateString('pt-BR') 
+
+              const expiredList = {
+                ...updatedList,
+                status: "expired",
+                completedDate: new Date().toLocaleDateString("pt-BR"),
               };
               const newExpired = [expiredList, ...expiredLists];
-              const newActive = updatedLists.filter(l => l.id !== listId);
-              
+              const newActive = updatedLists.filter((l) => l.id !== listId);
+
               setExpiredLists(newExpired);
               setActiveLists(newActive);
-              
+
               saveExpiredListsToStorage(newExpired);
               saveActiveListsToStorage(newActive);
             }
           } else if (updatedList && updatedList.items.length === 0) {
             // ✏️✏️✏️ IF LIST IS NOW EMPTY - REMOVE IT COMPLETELY
-            Alert.alert(
-              'Lista Vazia',
-              'A lista ficou vazia e foi removida.',
-              [{ text: 'OK' }]
-            );
-            
-            const newActive = updatedLists.filter(l => l.id !== listId);
+            Alert.alert("Lista Vazia", "A lista ficou vazia e foi removida.", [
+              { text: "OK" },
+            ]);
+
+            const newActive = updatedLists.filter((l) => l.id !== listId);
             setActiveLists(newActive);
             saveActiveListsToStorage(newActive);
           }
         },
       },
-    ]
-  );
-};
+    ]);
+  };
 
   const handleEditItemInActiveList = (listId, updatedItem) => {
-    const list = activeLists.find(l => l.id === listId);
-    
-    if (list && list.items.some(item => item.bought)) {
+    const list = activeLists.find((l) => l.id === listId);
+
+    if (list && list.items.some((item) => item.bought)) {
       Alert.alert(
-        'Atenção',
-        'Esta lista já tem itens comprados. Deseja continuar editando?',
+        "Atenção",
+        "Esta lista já tem itens comprados. Deseja continuar editando?",
         [
-          { text: 'Cancelar', style: 'cancel' },
+          { text: "Cancelar", style: "cancel" },
           {
-            text: 'Editar',
-            onPress: () => updateActiveListItem(listId, updatedItem)
-          }
-        ]
+            text: "Editar",
+            onPress: () => updateActiveListItem(listId, updatedItem),
+          },
+        ],
       );
       return;
     }
@@ -342,54 +321,52 @@ const handleDeleteItemFromActiveList = (listId, itemId) => {
         return {
           ...list,
           items: list.items.map((item) =>
-            item.id === updatedItem.id ? updatedItem : item
+            item.id === updatedItem.id ? updatedItem : item,
           ),
         };
       }
       return list;
     });
-    
+
     setActiveLists(updatedLists);
     saveActiveListsToStorage(updatedLists);
   };
 
   // ✏️✏️✏️ Delete ACTIVE list
   const handleDeleteActiveList = (listId) => {
-    Alert.alert(
-      "Excluir lista ativa", 
-      "Deseja excluir esta lista?", 
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Excluir",
-          style: "destructive",
-          onPress: () => {
-            const updatedLists = activeLists.filter((list) => list.id !== listId);
-            setActiveLists(updatedLists);
-            saveActiveListsToStorage(updatedLists);
-          },
+    Alert.alert("Excluir lista ativa", "Deseja excluir esta lista?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Excluir",
+        style: "destructive",
+        onPress: () => {
+          const updatedLists = activeLists.filter((list) => list.id !== listId);
+          setActiveLists(updatedLists);
+          saveActiveListsToStorage(updatedLists);
         },
-      ]
-    );
+      },
+    ]);
   };
 
   // ✏️✏️✏️ Delete EXPIRED list
   const handleDeleteExpiredList = (listId) => {
     Alert.alert(
-      "Excluir do histórico", 
-      "Deseja excluir esta lista do histórico?", 
+      "Excluir do histórico",
+      "Deseja excluir esta lista do histórico?",
       [
         { text: "Cancelar", style: "cancel" },
         {
           text: "Excluir",
           style: "destructive",
           onPress: () => {
-            const updatedLists = expiredLists.filter((list) => list.id !== listId);
+            const updatedLists = expiredLists.filter(
+              (list) => list.id !== listId,
+            );
             setExpiredLists(updatedLists);
             saveExpiredListsToStorage(updatedLists);
           },
         },
-      ]
+      ],
     );
   };
 
@@ -398,12 +375,12 @@ const handleDeleteItemFromActiveList = (listId, itemId) => {
     switch (activeTab) {
       case "home":
         return (
-          <HomeScreen 
+          <HomeScreen
             onStartNewList={handleStartNewList}
             activeLists={activeLists}
             expiredLists={expiredLists}
-            onViewActiveList={() => setActiveTab('active')}
-            onViewExpiredList={() => setActiveTab('history')}
+            onViewActiveList={() => setActiveTab("active")}
+            onViewExpiredList={() => setActiveTab("history")}
           />
         );
       case "add":
@@ -437,7 +414,7 @@ const handleDeleteItemFromActiveList = (listId, itemId) => {
         );
       default:
         return (
-          <HomeScreen 
+          <HomeScreen
             onStartNewList={handleStartNewList}
             activeLists={activeLists}
             expiredLists={expiredLists}
@@ -455,63 +432,61 @@ const handleDeleteItemFromActiveList = (listId, itemId) => {
   }
 
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.container} edges={["top"]}>
+          <StatusBar style="dark" />
+          <Header title="Seu Carrinho" showMenu={false} />
+          <View style={styles.content}>{renderScreen()}</View>
+          <BottomBar activeTab={activeTab} onTabPress={setActiveTab} />
 
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.container} edges={["top"]}>
-        <StatusBar style="dark" />
-        <Header title="Seu Carrinho" showMenu={false} />
-        <View style={styles.content}>{renderScreen()}</View>
-        <BottomBar activeTab={activeTab} onTabPress={setActiveTab} />
+          <Modal
+            visible={showNameModal}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setShowNameModal(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Nomear sua lista</Text>
+                <Text style={styles.modalSubtitle}>
+                  Dê um nome para identificar esta lista (opcional)
+                </Text>
 
-        <Modal
-          visible={showNameModal}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setShowNameModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Nomear sua lista</Text>
-              <Text style={styles.modalSubtitle}>
-                Dê um nome para identificar esta lista (opcional)
-              </Text>
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="Ex: Compras da Semana"
+                  value={listName}
+                  onChangeText={setListName}
+                  placeholderTextColor="#9CA3AF"
+                />
 
-              <TextInput
-                style={styles.modalInput}
-                placeholder="Ex: Compras da Semana"
-                value={listName}
-                onChangeText={setListName}
-                placeholderTextColor="#9CA3AF"
-              />
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.cancelButton]}
+                    onPress={() => {
+                      setShowNameModal(false);
+                      setListName("");
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.cancelButtonText}>Cancelar</Text>
+                  </TouchableOpacity>
 
-              <View style={styles.modalButtons}>
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.cancelButton]}
-                  onPress={() => {
-                    setShowNameModal(false);
-                    setListName("");
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.cancelButtonText}>Cancelar</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.confirmButton]}
-                  onPress={confirmSaveList}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.confirmButtonText}>Salvar</Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.confirmButton]}
+                    onPress={confirmSaveList}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.confirmButtonText}>Salvar</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-          </View>
-        </Modal>
-      </SafeAreaView>
-    </SafeAreaProvider>
+          </Modal>
+        </SafeAreaView>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
-
   );
 }
 
