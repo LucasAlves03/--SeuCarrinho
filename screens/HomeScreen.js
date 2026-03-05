@@ -6,16 +6,32 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Alert
 } from "react-native";
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from "react-native-reanimated";
+import { generateTestList, generateTestListName} from '../utils/testData';
+
 const HomeScreen = ({
   onStartNewList,
   activeLists,
   expiredLists,
   onViewActiveList,
   onViewExpiredList,
+  onCreateTestList
 }) => {
+
+  const [pressCount, setPressCount] = useState(0);
+
+  const handleSecretTap = () => {
+    setPressCount(prev => prev + 1);
+
+    if(pressCount >- 4) {
+      Alert.alert('Teste Ativado', 'Agora você pode criar listas de teste rapidamente',
+        [{text: 'OK'}]
+      )
+    }
+  }
   const [selectedTab, setSelectedTab] = useState("ativas");
   const translateX = useSharedValue(0);
   const panGesture = Gesture.Pan().onUpdate((e) => {
@@ -41,11 +57,11 @@ const HomeScreen = ({
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.hero}>
         <View style={styles.illustrationContainer}>
-          <View style={styles.illustration}>
+          <TouchableOpacity onPress={handleSecretTap} 
+           activeOpacity={1} style={styles.illustration}>
             <Text style={styles.cartEmoji}>🛒</Text>
-
             <Text style={styles.foodEmojis}>🍎🥬🥖</Text>
-          </View>
+            </TouchableOpacity>
         </View>
 
         <Text style={styles.title}>
@@ -65,6 +81,13 @@ const HomeScreen = ({
           <Text style={styles.buttonText}>Começar</Text>
           <Ionicons name="arrow-forward" size={20} color="#fff" />
         </TouchableOpacity>
+
+        {pressCount >= 5 && (
+          <TouchableOpacity style={styles.testButton} onPress={onCreateTestList} activeOpacity={0.8}>
+            <Ionicons name="flask" size={20} color='#fff' />
+            <Text style={styles.testButtonText}>Criar Lista de Teste</Text>
+           </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.listsSection}>
@@ -258,45 +281,6 @@ const HomeScreen = ({
          </Animated.View>
         </GestureDetector>
       </View>
-
-      {/* <View style={styles.features}>
-        
-        <View style={styles.featureCard}>
-          <View style={styles.featureIcon}>
-            <Ionicons style={styles.featureEmoji} name='reader' size={2} color='#0c407d'/>
-          </View>
-          <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Listas Personalizadas</Text>
-            <Text style={styles.featureText}>
-              Crie quantas listas quiser com nomes personalizados
-            </Text>
-          </View>
-        </View>
-        
-        <View style={styles.featureCard}>
-          <View style={styles.featureIcon}>
-            <Ionicons style={styles.featureEmoji} name='pricetags' size={2} color='#315277'/>
-          </View>
-          <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Categorias </Text>
-            <Text style={styles.featureText}>
-              Seus itens são organizados por categoria
-            </Text>
-          </View>
-        </View>
-        
-        <View style={styles.featureCard}>
-          <View style={styles.featureIcon}>
-            <Ionicons style={styles.featureEmoji} name='wallet' size={2} color='#224690'/>
-          </View>
-          <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Controle de Gastos</Text>
-            <Text style={styles.featureText}>
-              Acompanhe o total e mantenha seu orçamento sob controle
-            </Text>
-          </View>
-        </View>
-      </View> */}
     </ScrollView>
   );
 };
@@ -515,8 +499,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#4A90E2",
   },
-
-  // ✏️✏️✏️ EMPTY STATE
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
@@ -584,6 +566,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6B7280",
     lineHeight: 20,
+  },
+  testButton: {
+    backgroundColor: '#EF4444',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 30,
+    marginTop: 15,
+    gap: 8,
+    borderWidth: 2,
+    borderColor: '#DC2626',
+  },
+  testButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
   },
 });
 

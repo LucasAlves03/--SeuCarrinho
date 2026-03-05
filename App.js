@@ -10,9 +10,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInRight,
+  SlideOutLeft,
+  SlideInLeft,
+  SlideOutRight,
+} from 'react-native-reanimated';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-
 import BottomBar from "./components/BottomBar";
 import Header from "./components/Header";
 import Splash from "./components/Splash";
@@ -21,24 +28,34 @@ import AddItemScreen from "./screens/AddItemScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import HomeScreen from "./screens/HomeScreen";
 import { generateId } from "./utils/categories";
+import {generateTestList, generateTestListName } from './utils/testData';
+
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState("home");
+  const [previousTab, setPreviousTab] = useState("home");
   const [currentList, setCurrentList] = useState([]);
   const [showNameModal, setShowNameModal] = useState(false);
   const [listName, setListName] = useState("");
 
-  // ✏️✏️✏️ SEPARATED: Active vs Expired lists
   const [activeLists, setActiveLists] = useState([]);
   const [expiredLists, setExpiredLists] = useState([]);
 
-  // ✏️✏️✏️ Load lists on startup
   useEffect(() => {
     loadSavedLists();
   }, []);
 
-  // ✏️✏️✏️ LOAD from AsyncStorage
+  const handleTabChange = (newTab) => {
+    setPreviousTab(activeTab);
+    setActiveTab(newTab);
+  }
+
+  const tabOrder = ['home', 'add', 'active', 'history'];
+  const previousIndex = tabOrder.indexOf(previousTab);
+  const currentIndex = tabOrder.indexOf(activeTab);
+  const isMovingForward = currentIndex > previousIndex;
+
   const loadSavedLists = async () => {
     try {
       const active = await AsyncStorage.getItem("activeLists");
@@ -332,7 +349,6 @@ export default function App() {
     saveActiveListsToStorage(updatedLists);
   };
 
-  // ✏️✏️✏️ Delete ACTIVE list
   const handleDeleteActiveList = (listId) => {
     Alert.alert("Excluir lista ativa", "Deseja excluir esta lista?", [
       { text: "Cancelar", style: "cancel" },
@@ -348,7 +364,6 @@ export default function App() {
     ]);
   };
 
-  // ✏️✏️✏️ Delete EXPIRED list
   const handleDeleteExpiredList = (listId) => {
     Alert.alert(
       "Excluir do histórico",
@@ -370,21 +385,89 @@ export default function App() {
     );
   };
 
-  // ✏️✏️✏️ Render screen based on active tab
+  const handleCreateTestList = () => {
+    Alert.alert(
+      'Criar Lista de Teste',
+      'Quantos itens você deseja?',
+      [
+        {text: 'Cancelar', style: 'cancel'},
+        {
+          text: '5 itens',
+          onPress: () => createTestList(5)
+        },
+        {
+          text: '10 itens',
+          onPress: () => createTestList(10)
+        },
+        {
+          text: '15 itens',
+          onPress: () => createTestList(15)
+        },
+      ]
+    );
+  };
+
+    const createTestList = (itemCount) => {
+      const testItems = generateTestList(itemCount);
+      const testName = generateTestListName();
+
+      const newList = {
+        id: generateId(),
+        date: new Date().toLocaleDateString('pt-BR'),
+        items: testItems,
+        name: testName,
+        status: 'active'
+      };
+
+      const updatedLists = [newList, ...activeLists];
+      setActiveLists(updatedLists);
+      saveActiveListsToStorage(updatedLists);
+      Alert.alert(
+        'Lista Criada',
+        `Lista de teste "${testName} com ${itemCount} itens foi criada`,
+        [
+          {text: 'OK'},
+          {text: 'Ver Lista', onPress: () => handleTabChange('active')},
+        ]
+      )
+
+}
+
   const renderScreen = () => {
+    const enterAnimation = isMovingForward
+    ? SlideInRight.duration(300)
+    : SlideInLeft.duration(300);
+
+    const exitAnimation = isMovingForward
+    ? SlideOutLeft.duration(300)
+    : SlideOutRight.duration(300);
     switch (activeTab) {
       case "home":
         return (
+          <Animated.View
+            key='home'
+            entering={enterAnimation}
+            exiting={exitAnimation}
+            style={{ flex: 1}}>
+
           <HomeScreen
             onStartNewList={handleStartNewList}
             activeLists={activeLists}
             expiredLists={expiredLists}
             onViewActiveList={() => setActiveTab("active")}
             onViewExpiredList={() => setActiveTab("history")}
+            onCreateTestList={handleCreateTestList}
           />
+          </Animated.View>
+
         );
       case "add":
         return (
+          <Animated.View
+            key='add'
+            entering={enterAnimation}
+            exiting={exitAnimation}
+            style={{ flex: 1}}>
           <AddItemScreen
             currentList={currentList}
             onAddItem={handleAddItem}
@@ -393,9 +476,15 @@ export default function App() {
             onEditItem={handleEditItem}
             onMarkAsBought={handleMarkAsBought}
           />
+          </Animated.View>
         );
       case "active":
         return (
+          <Animated.View
+            key='active'
+            entering={enterAnimation}
+            exiting={exitAnimation}
+            style={{ flex: 1}}>
           <ActiveListsScreen
             activeLists={activeLists}
             onDeleteList={handleDeleteActiveList}
@@ -404,21 +493,34 @@ export default function App() {
             onUnmarkAsBought={handleUnmarkAsBoughtInActiveList}
             onDeleteItem={handleDeleteItemFromActiveList}
           />
+          </Animated.View>
         );
       case "history":
         return (
+          <Animated.View
+            key='history'
+            entering={enterAnimation}
+            exiting={exitAnimation}
+            style={{ flex: 1}}>
           <HistoryScreen
             savedLists={expiredLists}
             onDeleteList={handleDeleteExpiredList}
           />
+          </Animated.View>
         );
       default:
         return (
+          <Animated.View
+            key='default'
+            entering={enterAnimation}
+            exiting={exitAnimation}
+            style={{ flex: 1}}>
           <HomeScreen
             onStartNewList={handleStartNewList}
             activeLists={activeLists}
             expiredLists={expiredLists}
           />
+          </Animated.View>
         );
     }
   };
@@ -438,7 +540,7 @@ export default function App() {
           <StatusBar style="dark" />
           <Header title="Seu Carrinho" showMenu={false} />
           <View style={styles.content}>{renderScreen()}</View>
-          <BottomBar activeTab={activeTab} onTabPress={setActiveTab} />
+          <BottomBar activeTab={activeTab} onTabPress={handleTabChange} />
 
           <Modal
             visible={showNameModal}
