@@ -166,6 +166,7 @@ const AddItemScreen = ({
                   <Image
                     source={selectedCategory.image}
                     style={styles.categoryThumb}
+                    contentFit="cover"
                   />
                   <Text style={styles.pickerButtonText}>
                     {selectedCategory.name}
@@ -290,14 +291,7 @@ const styles = StyleSheet.create({
   formSection: {
     padding: 20,
     backgroundColor: "#fff",
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    shadowColor: "#4A90E2",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-    marginBottom: 20,
+    height:'700'
   },
   sectionTitle: {
     fontSize: 24,

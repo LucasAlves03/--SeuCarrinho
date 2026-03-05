@@ -18,7 +18,7 @@ const Header = ({ title, showMenu, onMenuPress }) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-    paddingTop: 50,
+    paddingTop: 25,
     paddingBottom: 15,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#4A90E2',
     letterSpacing: 0.5,
+    padding: 10
   },
   menuButton: {
     padding: 5,

@@ -51,13 +51,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#E8F4FD',
-    paddingBottom: 10,
-    paddingTop: 10,
-    shadowColor: '#4A90E2',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 5,
+    paddingBottom: 25,
+    paddingTop:10
+    
   },
   tab: {
     flex: 1,

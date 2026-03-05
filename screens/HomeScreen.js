@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { use, useState } from "react";
+import {useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -8,8 +8,6 @@ import {
   View,
   Alert
 } from "react-native";
-import {Gesture, GestureDetector} from 'react-native-gesture-handler'
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from "react-native-reanimated";
 import { generateTestList, generateTestListName} from '../utils/testData';
 
 const HomeScreen = ({
@@ -33,25 +31,6 @@ const HomeScreen = ({
     }
   }
   const [selectedTab, setSelectedTab] = useState("ativas");
-  const translateX = useSharedValue(0);
-  const panGesture = Gesture.Pan().onUpdate((e) => {
-    translateX.value = e.translationX;
-  }).onEnd((e) => {
-    if(e.translationX > 50) {
-      runOnJS(setSelectedTab)('ativas');
-    }else if(e.translationX < -50){
-      runOnJS(setSelectedTab)('expiradas');
-    }
-    translateX.value = withSpring(0);
-  })
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: translateX.value}],
-    }
-  })
-
-  
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -135,8 +114,8 @@ const HomeScreen = ({
             )}
           </TouchableOpacity>
         </View>
-        <GestureDetector gesture={panGesture}>
-          <Animated.View style={[styles.tabContent, animatedStyle]}>
+        
+          <View style={styles.tabContent}>
 
          
           {selectedTab === "ativas" ? (
@@ -197,7 +176,7 @@ const HomeScreen = ({
                   <Text style={styles.viewAllButtonText}>
                     Ver Todas as Listas Ativas
                   </Text>
-                  <Ionicons name="arrow-forward" size={16} color="#4A90e2" />
+                  <Ionicons name="arrow-forward" size={16} color="#fff" />
                 </TouchableOpacity>
               </View>
             ) : (
@@ -248,15 +227,8 @@ const HomeScreen = ({
                   </View>
                 </TouchableOpacity>
               ))}
-              {expiredLists.length > 3 && (
-                <Text style={styles.moreListsTetx}>
-                  + {expiredLists.length - 3} mais{" "}
-                  {expiredLists.length - 3 === 1 ? "lista" : "listas"}
-                </Text>
-              )}
-
               <TouchableOpacity
-                style={styles.ViewAllButton}
+                style={styles.viewAllButton}
                 onPress={onViewExpiredList}
                 activeOpacity={0.8}
               >
@@ -278,8 +250,7 @@ const HomeScreen = ({
               </Text>
             </View>
           )}
-         </Animated.View>
-        </GestureDetector>
+         </View>
       </View>
     </ScrollView>
   );
@@ -365,7 +336,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 4,
     marginBottom: 20,
-    shadowColor: "#4A90E2",
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -386,13 +357,13 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 15,
     fontWeight: 600,
-    color: "#6B7280",
+    color: "#000000",
   },
   tabTextActive: {
     color: "#ffffff",
   },
   badge: {
-    backgroundColor: "#d2d2d2a8",
+    backgroundColor: "#767676c8",
     minWidth: 22,
     height: 22,
     borderRadius: 11,
@@ -401,10 +372,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
   },
   badgeGray: {
-    backgroundColor: "#9ca3af",
+    backgroundColor: "#767676c8",
   },
   badgeText: {
-    color: "#080808",
+    color: "#ffffff",
     fontSize: 12,
     fontWeight: "700",
   },
@@ -416,7 +387,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
-    shadowColor: "#4A90E2",
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -490,14 +461,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 14,
-    backgroundColor: "#E8F4FD",
+    backgroundColor: "#3e91d0",
     borderRadius: 12,
     gap: 8,
   },
   viewAllButtonText: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "600",
-    color: "#4A90E2",
+    color: "#fffdfd",
+    textAlign: 'center'
   },
   emptyState: {
     alignItems: "center",
