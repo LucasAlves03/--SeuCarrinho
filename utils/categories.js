@@ -121,3 +121,15 @@ export const formatQuantity = (quantity, unit) => {
 export const generateId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };
+
+export const countItems = (items) => {
+  return items.reduce((count, item) => {
+    if(item.unit === 'unit') {
+      return count + item.quantity
+    } else{
+      return count + 1;
+    }
+  }, 0);
+};
+
+export const countUniqueItems = (items) => { return items.length; };

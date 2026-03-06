@@ -9,6 +9,7 @@ import {
   Alert
 } from "react-native";
 import { generateTestList, generateTestListName} from '../utils/testData';
+import { formatCurrency, countItems } from "../utils/categories";
 
 const HomeScreen = ({
   onStartNewList,
@@ -122,9 +123,7 @@ const HomeScreen = ({
             activeLists.length > 0 ? (
               <View>
                 {activeLists.slice(0, 3).map((list) => {
-                  const boughtCount = list.items.filter(
-                    (item) => item.bought,
-                  ).length;
+                  const boughtCount = list.items.filter((item) => item.bought).length;
                   const totalItems = list.items.length;
                   const progress = (boughtCount / totalItems) * 100;
                   return (

@@ -23,7 +23,15 @@ const CartPop = ({ visible, onClose, items, onDeleteItem, onSaveList, onEditItem
   };
 
   const getTotalItems = () => {
-    return items.reduce((sum, item) => sum + item.quantity, 0);
+     return items.reduce((count, item) => {
+     if (item.unit === 'unit') {
+      return count + item.quantity;  // Count quantity for units
+      
+    } else {
+      return count + 1;  // Count as 1 for kg/g/l/ml
+    }
+    
+  }, 0);
   };
   const handleEditItem = (item) => {
     setItemToEdit(item);

@@ -12,16 +12,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import CartModal from "../components/CartPop";
-import CategoryPicker from "../components/CategoryPicker";
-import FloatingCartButton from "../components/FloatingCartButton";
-import UnitPicker from "../components/UnitPicker";
-import Toast from "../components/Toast";
+import CartModal from "./components/CartPop";
+import CategoryPicker from "./components/CategoryPicker";
+import FloatingCartButton from "./components/FloatingCartButton";
+import UnitPicker from "./components/UnitPicker";
+import Toast from "./components/Toast";
 import {
   generateId,
   suggestCategory,
   UNIT_TYPES
-} from "../utils/categories";
+} from "./utils/categories";
 
 const AddItemScreen = ({
   currentList,
