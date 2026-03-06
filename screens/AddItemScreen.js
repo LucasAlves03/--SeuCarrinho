@@ -290,7 +290,7 @@ const AddItemScreen = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FBFF",
+    backgroundColor: "#fff",
   },
   scrollView: {
     flex: 1,
@@ -298,11 +298,13 @@ const styles = StyleSheet.create({
   formSection: {
     padding: 20,
     backgroundColor: "#fff",
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
   },
   sectionTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "700",
-    color: "#1F2937",
+    color: "#4d4e4e",
     marginBottom: 20,
   },
   inputGroup: {
@@ -380,7 +382,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 16,
     borderRadius: 12,
-    marginTop: 10,
+    marginTop: 3,
     gap: 10,
   },
   addButtonText: {

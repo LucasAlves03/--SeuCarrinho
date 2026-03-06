@@ -62,7 +62,7 @@ const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => 
         <View style={styles.header}>
           <Text style={styles.title}>Histórico de Compras</Text>
           <Text style={styles.subtitle}>
-            {savedLists.length} {savedLists.length === 1 ? 'lista salva' : 'listas salvas'}
+            {savedLists.length} {savedLists.length === 1 ? 'lista salva' : 'Listas salvas'}
           </Text>
         </View>
 
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#4d4e4e',
     marginBottom: 8,
   },
   subtitle: {

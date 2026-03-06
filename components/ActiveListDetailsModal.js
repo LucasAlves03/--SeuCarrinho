@@ -227,7 +227,7 @@ const ActiveListDetailsModal = ({
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteItem(item)}>
-                  <Ionicons name="trash-outline" size={22} color="#ef4444"/>
+                  <Ionicons name="trash-outline" size={22} color="#000000"/>
                 </TouchableOpacity>
               )}
             </View>
@@ -286,21 +286,17 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#fff",
-    paddingTop: 20,
-    paddingBottom: 20,
+    paddingTop: 35,
+    paddingBottom: 5,
     paddingHorizontal: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
   },
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
+    
   },
   closeButton: {
-    marginRight: 15,
+    marginRight: 5,
     padding: 5,
   },
   headerTitle: {
@@ -318,13 +314,14 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",
+    
   },
   progressBarContainer: {
-    height: 12,
+    height: 10,
     backgroundColor: "#E5E7EB",
     borderRadius: 6,
     overflow: "hidden",
-    marginBottom: 10,
+    marginBottom: 5,
   },
   progressBarFill: {
     height: "100%",
@@ -332,30 +329,35 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   progressText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "600",
-    color: "#4A90E2",
+    color: "#6B7280",
     textAlign: "center",
   },
   itemsList: {
     flex: 1,
     padding: 20,
+    marginBottom: 10,
+    borderStyle: 'solid',
+borderWidth: 2,
+borderColor: 'red',
+
   },
   itemCard: {
     backgroundColor: "#fff",
     borderRadius: 16,
     padding: 16,
-    marginBottom: 12,
+    marginBottom: 15,
     flexDirection: "row",
     alignItems: "center",
-    shadowColor: "#4A90E2",
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
   },
   itemCardBought: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#edebebfd",
     opacity: 0.7,
   },
   checkbox: {

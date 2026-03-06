@@ -62,6 +62,10 @@ const ActiveListsScreen = ({
     <>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.listsContainer}>
+            <Text style={styles.sectionTitle}>
+              ({activeLists.length}) {activeLists.length === 1 ? 'Lista Ativa' : 'Listas Ativas'}
+            </Text>
+          
           {activeLists.map((list) => {
             const boughtCount = list.items.filter((item) => item.bought).length;
             const totalItems = list.items.length;
@@ -69,9 +73,10 @@ const ActiveListsScreen = ({
 
             return (
               <View key={list.id} style={styles.listCard}>
+                
                 {/* Progress Badge */}
                 <View style={styles.progressBadge}>
-                  <Ionicons name="timer-outline" size={16} color="#4A90E2" />
+                  <Ionicons name="timer-outline" size={16} color="#ffffff" />
                   <Text style={styles.progressText}>
                     {boughtCount}/{totalItems} comprados
                   </Text>
@@ -92,7 +97,7 @@ const ActiveListsScreen = ({
                     onPress={() => onDeleteList(list.id)}
                     activeOpacity={0.7}
                   >
-                    <Ionicons name="trash-outline" size={22} color="#EF4444" />
+                    <Ionicons name="trash-outline" size={22} color="#000000" />
                   </TouchableOpacity>
                 </View>
 
@@ -141,7 +146,7 @@ const ActiveListsScreen = ({
                     onPress={() => handleViewDetails(list)}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.viewButtonText}>Continuar</Text>
+                    <Text style={styles.viewButtonText}>Ver Lista</Text>
                     <Ionicons name="arrow-forward" size={18} color="#fff" />
                   </TouchableOpacity>
                 </View>
@@ -170,15 +175,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F8FBFF",
   },
+  sectionTitle: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#4d4e4e",
+    marginBottom: 20,
+  },
+  
   listsContainer: {
     padding: 20,
   },
   listCard: {
     backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 10,
+    padding: 25,
     marginBottom: 20,
-    shadowColor: "#4A90E2",
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
@@ -187,21 +199,21 @@ const styles = StyleSheet.create({
   },
   progressBadge: {
     position: "absolute",
-    top: 12,
-    right: 12,
+    top: -7,
+    right: -1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#E8F4FD",
+    backgroundColor: "#2d3032",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 12,
+    borderRadius: 5,
     gap: 4,
     zIndex: 10,
   },
   progressText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: "600",
-    color: "#4A90E2",
+    color: "#ffffff",
   },
   listHeader: {
     flexDirection: "row",
@@ -242,7 +254,7 @@ const styles = StyleSheet.create({
   },
   progressBarFill: {
     height: "100%",
-    backgroundColor: "#10B981",
+    backgroundColor: "#4A90E2",
     borderRadius: 4,
   },
   listPreview: {
