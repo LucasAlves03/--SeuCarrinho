@@ -25,10 +25,10 @@ const CartPop = ({ visible, onClose, items, onDeleteItem, onSaveList, onEditItem
   const getTotalItems = () => {
      return items.reduce((count, item) => {
      if (item.unit === 'unit') {
-      return count + item.quantity;  // Count quantity for units
+      return count + item.quantity;  
       
     } else {
-      return count + 1;  // Count as 1 for kg/g/l/ml
+      return count + 1;
     }
     
   }, 0);
@@ -51,7 +51,6 @@ const CartPop = ({ visible, onClose, items, onDeleteItem, onSaveList, onEditItem
       onRequestClose={onClose}
     >
       <View style={styles.container}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -66,7 +65,6 @@ const CartPop = ({ visible, onClose, items, onDeleteItem, onSaveList, onEditItem
           </View>
         </View>
 
-        {/* Cart Items */}
         {items.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Ionicons name="cart-outline" size={100} color="#E5E7EB" />
@@ -113,7 +111,6 @@ const CartPop = ({ visible, onClose, items, onDeleteItem, onSaveList, onEditItem
               ))}
             </ScrollView>
 
-            {/* Footer */}
             <View style={styles.footer}>
               <View style={styles.totalContainer}>
                 <Text style={styles.totalLabel}>Total</Text>

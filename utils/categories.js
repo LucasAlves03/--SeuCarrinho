@@ -84,7 +84,6 @@ export const CATEGORIES = {
   }
 };
 
-// Unit types
 export const UNIT_TYPES = {
   UNIT: { id: 'unit', label: 'Unidade', shortLabel: 'un' },
   KG: { id: 'kg', label: 'Quilograma', shortLabel: 'kg' },
@@ -93,7 +92,6 @@ export const UNIT_TYPES = {
   ML: { id: 'ml', label: 'Mililitros', shortLabel: 'ml' },
 };
 
-// Function to categorize items based on name (suggestion only)
 export const suggestCategory = (itemName) => {
   const normalizedName = itemName.toLowerCase().trim();
   
@@ -106,18 +104,15 @@ export const suggestCategory = (itemName) => {
   return CATEGORIES.OTHER;
 };
 
-// Function to format currency
 export const formatCurrency = (value) => {
   return `R$ ${parseFloat(value).toFixed(2).replace('.', ',')}`;
 };
 
-// Function to format quantity with unit
 export const formatQuantity = (quantity, unit) => {
   const unitType = Object.values(UNIT_TYPES).find(u => u.id === unit) || UNIT_TYPES.UNIT;
   return `${quantity} ${unitType.shortLabel}`;
 };
 
-// Generate unique ID
 export const generateId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };

@@ -1,5 +1,5 @@
 import LottieView from "lottie-react-native";
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 
 export default function AnimatedSplash({ onFinish }) {
@@ -24,6 +24,7 @@ export default function AnimatedSplash({ onFinish }) {
         loop={false}
         style={styles.animation}
         resizeMode="cover"
+        onAnimationFinish={onFinish}
       />
     </View>
   );

@@ -19,7 +19,7 @@ import Animated, {
   SlideOutRight,
 } from 'react-native-reanimated';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import BottomBar from "./components/BottomBar";
 import Header from "./components/Header";
 import Splash from "./components/Splash";
@@ -28,8 +28,9 @@ import AddItemScreen from "./screens/AddItemScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import HomeScreen from "./screens/HomeScreen";
 import { generateId } from "./utils/categories";
-import {generateTestList, generateTestListName } from './utils/testData';
+import * as SplashScreen from 'expo-splash-screen'
 
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -43,6 +44,10 @@ export default function App() {
   const [expiredLists, setExpiredLists] = useState([]);
 
   useEffect(() => {
+    const hideSplash = async () => {
+      await SplashScreen.hideAsync();
+    };
+    hideSplash();
     loadSavedLists();
   }, []);
 
@@ -88,13 +93,11 @@ export default function App() {
     }
   };
 
-  // ✏️✏️✏️ Start new list
   const handleStartNewList = () => {
     setCurrentList([]);
     setActiveTab("add");
   };
 
-  // ✏️✏️✏️ Add item to current cart
   const handleAddItem = (item) => {
     const newItem = {
       ...item,
@@ -103,7 +106,6 @@ export default function App() {
     setCurrentList([...currentList, newItem]);
   };
 
-  // ✏️✏️✏️ Mark item as bought in CURRENT CART
   const handleMarkAsBought = (itemId) => {
     const updatedList = currentList.map((item) =>
       item.id === itemId ? { ...item, bought: true } : item,
@@ -111,7 +113,6 @@ export default function App() {
 
     setCurrentList(updatedList);
 
-    // Check if ALL items are bought
     const allBought = updatedList.every((item) => item.bought);
     if (allBought) {
       Alert.alert(
@@ -122,7 +123,6 @@ export default function App() {
     }
   };
 
-  // ✏️✏️✏️ Delete item from current cart
   const handleDeleteItem = (itemId) => {
     Alert.alert("Remover item", "Deseja remover este item da lista?", [
       { text: "Cancelar", style: "cancel" },
@@ -154,7 +154,6 @@ export default function App() {
     saveActiveListsToStorage(updatedLists);
   };
 
-  // ✏️✏️✏️ Edit item in current cart
   const handleEditItem = (updatedItem) => {
     setCurrentList(
       currentList.map((item) =>
@@ -163,7 +162,6 @@ export default function App() {
     );
   };
 
-  // ✏️✏️✏️ Save current cart as ACTIVE list
   const handleSaveList = () => {
     if (currentList.length === 0) {
       Alert.alert("Atenção", "Adicione pelo menos um item à lista");
@@ -244,7 +242,6 @@ export default function App() {
         saveActiveListsToStorage(newActive);
       }
     }
-    // checkAndExpireList(listId, updatedLists);
   };
 
   const handleDeleteItemFromActiveList = (listId, itemId) => {
@@ -267,7 +264,6 @@ export default function App() {
           setActiveLists(updatedLists);
           saveActiveListsToStorage(updatedLists);
 
-          // ✏️✏️✏️ CHECK IF LIST SHOULD BE COMPLETED AFTER DELETION
           const updatedList = updatedLists.find((l) => l.id === listId);
           if (updatedList && updatedList.items.length > 0) {
             const allBought = updatedList.items.every(
@@ -275,7 +271,6 @@ export default function App() {
             );
 
             if (allBought) {
-              // All remaining items are bought - move to expired
               Alert.alert(
                 "🎉 Lista Finalizada!",
                 "Todos os itens restantes foram comprados! Esta lista foi movida para o histórico.",
@@ -297,7 +292,6 @@ export default function App() {
               saveActiveListsToStorage(newActive);
             }
           } else if (updatedList && updatedList.items.length === 0) {
-            // ✏️✏️✏️ IF LIST IS NOW EMPTY - REMOVE IT COMPLETELY
             Alert.alert("Lista Vazia", "A lista ficou vazia e foi removida.", [
               { text: "OK" },
             ]);
@@ -385,53 +379,8 @@ export default function App() {
     );
   };
 
-  const handleCreateTestList = () => {
-    Alert.alert(
-      'Criar Lista de Teste',
-      'Quantos itens você deseja?',
-      [
-        {text: 'Cancelar', style: 'cancel'},
-        {
-          text: '5 itens',
-          onPress: () => createTestList(5)
-        },
-        {
-          text: '10 itens',
-          onPress: () => createTestList(10)
-        },
-        {
-          text: '15 itens',
-          onPress: () => createTestList(15)
-        },
-      ]
-    );
-  };
 
-    const createTestList = (itemCount) => {
-      const testItems = generateTestList(itemCount);
-      const testName = generateTestListName();
 
-      const newList = {
-        id: generateId(),
-        date: new Date().toLocaleDateString('pt-BR'),
-        items: testItems,
-        name: testName,
-        status: 'active'
-      };
-
-      const updatedLists = [newList, ...activeLists];
-      setActiveLists(updatedLists);
-      saveActiveListsToStorage(updatedLists);
-      Alert.alert(
-        'Lista Criada',
-        `Lista de teste "${testName} com ${itemCount} itens foi criada`,
-        [
-          {text: 'OK'},
-          {text: 'Ver Lista', onPress: () => handleTabChange('active')},
-        ]
-      )
-
-}
 
   const renderScreen = () => {
     const enterAnimation = isMovingForward
@@ -456,7 +405,6 @@ export default function App() {
             expiredLists={expiredLists}
             onViewActiveList={() => setActiveTab("active")}
             onViewExpiredList={() => setActiveTab("history")}
-            onCreateTestList={handleCreateTestList}
           />
           </Animated.View>
 
@@ -536,7 +484,7 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <SafeAreaView style={styles.container} edges={["top"]}>
+        <SafeAreaView style={styles.container} edges={["top",]}>
           <StatusBar style="dark" />
           <Header title="Seu Carrinho" showMenu={false} />
           <View style={styles.content}>{renderScreen()}</View>

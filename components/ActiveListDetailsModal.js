@@ -105,7 +105,6 @@ const ActiveListDetailsModal = ({
       const updatedItems = localList.items.filter((i) => i.id !== item.id);
       setLocalList({ ...localList, items: updatedItems });
       
-      // Call parent to delete
       onDeleteItem(localList.id, item.id);
     }
   };
@@ -118,7 +117,6 @@ const ActiveListDetailsModal = ({
       onRequestClose={onClose}
     >
       <View style={styles.container}>
-        {/* ✏️✏️✏️ Header - Added zIndex */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -135,7 +133,6 @@ const ActiveListDetailsModal = ({
           </View>
         </View>
 
-        {/* ✏️✏️✏️ Progress Bar - Added zIndex */}
         <View style={styles.progressSection}>
           <View style={styles.progressBarContainer}>
             <View
@@ -152,7 +149,6 @@ const ActiveListDetailsModal = ({
           </Text>
         </View>
 
-        {/* ✏️✏️✏️ Items List - Added contentContainerStyle for bottom padding */}
         <ScrollView
           style={styles.itemsList}
           contentContainerStyle={styles.itemsListContent}
@@ -238,7 +234,6 @@ const ActiveListDetailsModal = ({
           ))}
         </ScrollView>
 
-        {/* ✏️✏️✏️ Footer - Added zIndex and fixed spacing */}
         <View style={styles.footer}>
           <View style={styles.totalsContainer}>
             <View style={styles.totalRow}>

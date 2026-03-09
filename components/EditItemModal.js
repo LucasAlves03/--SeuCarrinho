@@ -1,4 +1,3 @@
-// ✏️✏️✏️ NEW FILE
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -24,7 +23,6 @@ const EditItemModal = ({ visible, onClose, item, onSave }) => {
   const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
   const [unitPickerVisible, setUnitPickerVisible] = useState(false);
 
-  // ✏️✏️✏️ Load item data when modal opens
   useEffect(() => {
     if (item) {
       setItemName(item.name);
@@ -35,7 +33,6 @@ const EditItemModal = ({ visible, onClose, item, onSave }) => {
     }
   }, [item]);
 
-  // ✏️✏️✏️ Handle save
   const handleSave = () => {
     if (!itemName.trim()) {
       Alert.alert('Atenção', 'Digite o nome do item');
@@ -103,7 +100,6 @@ const EditItemModal = ({ visible, onClose, item, onSave }) => {
     >
       <View style={styles.overlay}>
         <View style={styles.container}>
-          {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>Editar Item</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -111,9 +107,7 @@ const EditItemModal = ({ visible, onClose, item, onSave }) => {
             </TouchableOpacity>
           </View>
 
-          {/* Form */}
           <View style={styles.form}>
-            {/* Item Name */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Nome do Item</Text>
               <TextInput
@@ -125,7 +119,6 @@ const EditItemModal = ({ visible, onClose, item, onSave }) => {
               />
             </View>
 
-            {/* Category */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Categoria</Text>
               <TouchableOpacity
@@ -149,7 +142,6 @@ const EditItemModal = ({ visible, onClose, item, onSave }) => {
               </TouchableOpacity>
             </View>
 
-            {/* Unit */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Unidade de Medida</Text>
               <TouchableOpacity
@@ -161,7 +153,6 @@ const EditItemModal = ({ visible, onClose, item, onSave }) => {
               </TouchableOpacity>
             </View>
 
-            {/* Price */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>{getPriceLabel()}</Text>
               <TextInput
@@ -174,7 +165,6 @@ const EditItemModal = ({ visible, onClose, item, onSave }) => {
               />
             </View>
 
-            {/* Quantity */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>{getQuantityLabel()}</Text>
               <TextInput
@@ -187,7 +177,6 @@ const EditItemModal = ({ visible, onClose, item, onSave }) => {
               />
             </View>
 
-            {/* Buttons */}
             <View style={styles.buttons}>
               <TouchableOpacity
                 style={[styles.button, styles.cancelButton]}
@@ -208,7 +197,6 @@ const EditItemModal = ({ visible, onClose, item, onSave }) => {
             </View>
           </View>
 
-          {/* Category Picker */}
           <CategoryPicker
             visible={categoryPickerVisible}
             onClose={() => setCategoryPickerVisible(false)}
@@ -216,7 +204,6 @@ const EditItemModal = ({ visible, onClose, item, onSave }) => {
             selectedCategory={selectedCategory}
           />
 
-          {/* Unit Picker */}
           <UnitPicker
             visible={unitPickerVisible}
             onClose={() => setUnitPickerVisible(false)}

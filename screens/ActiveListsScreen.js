@@ -1,4 +1,3 @@
-// ✏️✏️✏️ NEW FILE
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
@@ -74,7 +73,6 @@ const ActiveListsScreen = ({
             return (
               <View key={list.id} style={styles.listCard}>
                 
-                {/* Progress Badge */}
                 <View style={styles.progressBadge}>
                   <Ionicons name="timer-outline" size={16} color="#ffffff" />
                   <Text style={styles.progressText}>
@@ -101,14 +99,12 @@ const ActiveListsScreen = ({
                   </TouchableOpacity>
                 </View>
 
-                {/* Progress Bar */}
                 <View style={styles.progressBarContainer}>
                   <View
                     style={[styles.progressBarFill, { width: `${progress}%` }]}
                   />
                 </View>
 
-                {/* Category Images */}
                 <View style={styles.listPreview}>
                   <ScrollView
                     horizontal
@@ -133,7 +129,6 @@ const ActiveListsScreen = ({
                   </ScrollView>
                 </View>
 
-                {/* Footer */}
                 <View style={styles.listFooter}>
                   <View style={styles.totalContainer}>
                     <Text style={styles.totalLabel}>Total</Text>
@@ -156,7 +151,6 @@ const ActiveListsScreen = ({
         </View>
       </ScrollView>
 
-      {/* Details Modal */}
       <ActiveListDetailsModal
         visible={detailsModalVisible}
         onClose={() => setDetailsModalVisible(false)}

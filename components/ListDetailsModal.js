@@ -58,7 +58,6 @@ const ListDetailsModal = ({ visible, onClose, list, onEditItem }) => {
       onRequestClose={onClose}
     >
       <View style={styles.container}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -71,7 +70,6 @@ const ListDetailsModal = ({ visible, onClose, list, onEditItem }) => {
           </View>
         </View>
 
-        {/* Items List */}
         <ScrollView style={styles.itemsList} contentContainerStyle={styles.itemsListContent} showsVerticalScrollIndicator={false}>
           {list.items.map((item, index) => (
             <View key={item.id || index} style={[styles.itemCard, item.bought && styles.itemCardBought]}>
@@ -111,7 +109,6 @@ const ListDetailsModal = ({ visible, onClose, list, onEditItem }) => {
           ))}
         </ScrollView>
 
-        {/* Footer with Total */}
         <View style={styles.footer}>
           <View style={styles.totalContainer}>
             <View>
@@ -273,6 +270,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    
+    padding: 10,
   },
   totalLabel: {
     fontSize: 16,
@@ -285,9 +284,9 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   totalValue: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#7d7d7d',
   },
 });
 

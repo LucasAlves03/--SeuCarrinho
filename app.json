@@ -8,7 +8,6 @@
     "icon": "./assets/images/logo.png",
     "scheme": "seucarrinho",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
@@ -18,7 +17,6 @@
         "foregroundImage": "./assets/images/logo.png",
         "backgroundImage": "./assets/images/logo.png"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.lucasa19.SuperMarketCart"
     },

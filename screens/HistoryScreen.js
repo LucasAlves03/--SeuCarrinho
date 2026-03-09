@@ -30,7 +30,6 @@ const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => 
   };
 
   const getCategoryImages = (items) => {
-    // Get unique category images from items
     const uniqueCategories = [];
     const seenCategories = new Set();
     
@@ -41,7 +40,7 @@ const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => 
       }
     });
     
-    return uniqueCategories.slice(0, 5); // Maximum 5 images
+    return uniqueCategories.slice(0, 5); 
   };
 
   if (savedLists.length === 0) {
@@ -67,16 +66,13 @@ const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => 
         </View>
 
         <View style={styles.listsContainer}>
-          {/* ✏️✏️✏️ STEP 9 CHANGES START HERE */}
           {savedLists.map((list) => {
-            // ✏️✏️✏️ Calculate bought status
             const hasBoughtItems = list.items.some(item => item.bought);
             const boughtCount = list.items.filter(item => item.bought).length;
             const allBought = boughtCount === list.items.length;
 
             return (
               <View key={list.id} style={styles.listCard}>
-                {/* ✏️✏️✏️ ADD COMPLETED BADGE */}
                 {hasBoughtItems && (
                   <View style={styles.completedBadge}>
                     <Ionicons name="checkmark-circle" size={16} color="#10B981" />
@@ -93,7 +89,6 @@ const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => 
                   <View style={styles.listInfo}>
                     <Text style={styles.listName}>{list.name || 'Lista sem nome'}</Text>
                     <Text style={styles.listDate}>{list.date}</Text>
-                    {/* ✏️✏️✏️ UPDATE item count to show bought progress */}
                     <Text style={styles.listItemCount}>
                       {hasBoughtItems 
                         ? `${boughtCount} de ${list.items.length} comprados`
@@ -110,7 +105,6 @@ const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => 
                   </TouchableOpacity>
                 </View>
 
-                {/* Category Images Preview */}
                 <View style={styles.listPreview}>
                   <ScrollView
                     horizontal
@@ -133,7 +127,6 @@ const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => 
                   </ScrollView>
                 </View>
 
-                {/* Footer */}
                 <View style={styles.listFooter}>
                   <View style={styles.totalContainer}>
                     <Text style={styles.totalLabel}>Total</Text>
@@ -153,11 +146,9 @@ const HistoryScreen = ({ savedLists, onViewList, onDeleteList, onEditItem }) => 
               </View>
             );
           })}
-          {/* ✏️✏️✏️ STEP 9 CHANGES END HERE */}
         </View>
       </ScrollView>
 
-      {/* Details Modal */}
       <ListDetailsModal
         visible={detailsModalVisible}
         onClose={() => setDetailsModalVisible(false)}
@@ -196,7 +187,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#545454',
+    shadowColor: '#0a0a0a',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
@@ -266,17 +257,16 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#4A90E2',
   },
-  // ✏️✏️✏️ THESE STYLES WERE ALREADY IN YOUR FILE - KEEP THEM!
   completedBadge: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
+    position: "absolute",
+    top: -7,
+    right: -1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#D1FAE5',
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 12,
+    borderRadius: 5,
     gap: 4,
     zIndex: 10,
   },
@@ -292,6 +282,7 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
+    
   },
   totalContainer: {
     flex: 1,

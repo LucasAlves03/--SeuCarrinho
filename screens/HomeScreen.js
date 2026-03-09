@@ -8,7 +8,6 @@ import {
   View,
   Alert
 } from "react-native";
-import { generateTestList, generateTestListName} from '../utils/testData';
 import { formatCurrency, countItems } from "../utils/categories";
 
 const HomeScreen = ({
@@ -19,26 +18,14 @@ const HomeScreen = ({
   onViewExpiredList,
   onCreateTestList
 }) => {
-
-  const [pressCount, setPressCount] = useState(0);
-
-  const handleSecretTap = () => {
-    setPressCount(prev => prev + 1);
-
-    if(pressCount >- 4) {
-      Alert.alert('Teste Ativado', 'Agora você pode criar listas de teste rapidamente',
-        [{text: 'OK'}]
-      )
-    }
-  }
+  
   const [selectedTab, setSelectedTab] = useState("ativas");
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.hero}>
         <View style={styles.illustrationContainer}>
-          <TouchableOpacity onPress={handleSecretTap} 
-           activeOpacity={1} style={styles.illustration}>
+          <TouchableOpacity activeOpacity={1} style={styles.illustration}>
             <Text style={styles.cartEmoji}>🛒</Text>
             <Text style={styles.foodEmojis}>🍎🥬🥖</Text>
             </TouchableOpacity>
@@ -61,13 +48,6 @@ const HomeScreen = ({
           <Text style={styles.buttonText}>Começar</Text>
           <Ionicons name="arrow-forward" size={20} color="#fff" />
         </TouchableOpacity>
-
-        {pressCount >= 5 && (
-          <TouchableOpacity style={styles.testButton} onPress={onCreateTestList} activeOpacity={0.8}>
-            <Ionicons name="flask" size={20} color='#fff' />
-            <Text style={styles.testButtonText}>Criar Lista de Teste</Text>
-           </TouchableOpacity>
-        )}
       </View>
 
       <View style={styles.listsSection}>
@@ -488,7 +468,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  // EXISTING FEATURES SECTION
   features: {
     padding: 20,
     paddingTop: 10,

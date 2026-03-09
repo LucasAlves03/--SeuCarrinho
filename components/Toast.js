@@ -1,4 +1,3 @@
-// ✏️✏️✏️ NEW FILE
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,7 +8,6 @@ const Toast = ({ visible, message, onHide }) => {
 
   useEffect(() => {
     if (visible) {
-      // Show animation
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
@@ -24,7 +22,6 @@ const Toast = ({ visible, message, onHide }) => {
         }),
       ]).start();
 
-      // Auto hide after 3 seconds
       const timer = setTimeout(() => {
         hideToast();
       }, 2000);

@@ -42,7 +42,6 @@ const AddItemScreen = ({
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  // Auto-suggest category when name changes
   const handleNameChange = (text) => {
     setItemName(text);
     if (text.trim() && !selectedCategory) {
@@ -86,7 +85,6 @@ const AddItemScreen = ({
     setToastMessage("Item Adicionado com Sucesso!")
     setShowToast(true);
 
-    // Reset form
     setItemName("");
     setItemPrice("");
     setItemQuantity("1");
@@ -161,7 +159,6 @@ const AddItemScreen = ({
             />
           </View>
 
-          {/* Category Selector */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Categoria</Text>
             <TouchableOpacity
@@ -188,7 +185,6 @@ const AddItemScreen = ({
             </TouchableOpacity>
           </View>
 
-          {/* Unit Selector - MOVED UP */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Unidade de Medida</Text>
             <TouchableOpacity
@@ -202,7 +198,6 @@ const AddItemScreen = ({
             </TouchableOpacity>
           </View>
 
-          {/* Price Input - Now with dynamic label */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>{getPriceLabel()}</Text>
             <TextInput
@@ -218,7 +213,6 @@ const AddItemScreen = ({
             )}
           </View>
 
-          {/* Quantity Input - Now with dynamic label */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>{getQuantityLabel()}</Text>
             <TextInput
@@ -232,7 +226,6 @@ const AddItemScreen = ({
             <Text style={styles.helpText}>{getQuantityHelp()}</Text>
           </View>
 
-          {/* Example calculation for kg */}
           {selectedUnit === "kg" && itemPrice && itemQuantity && (
             <View style={styles.exampleCard}>
               <Text style={styles.exampleText}>
@@ -242,7 +235,6 @@ const AddItemScreen = ({
             </View>
           )}
 
-          {/* Add Button */}
           <TouchableOpacity
             style={styles.addButton}
             onPress={handleAddItem}
@@ -254,13 +246,11 @@ const AddItemScreen = ({
         </View>
       </ScrollView>
 
-      {/* Floating Cart Button */}
       <FloatingCartButton
         itemCount={getTotalItems()}
         onPress={() => setCartModalVisible(true)}
       />
 
-      {/* Modals */}
       <CartModal
         visible={cartModalVisible}
         onClose={() => setCartModalVisible(false)}
