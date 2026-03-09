@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#4d4e4e',
+    color: '#4d4e4e ',
     marginBottom: 8,
   },
   subtitle: {
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
-    position: 'relative', // ✏️✏️✏️ ADD THIS for badge positioning
+    position: 'relative', 
   },
   listHeader: {
     flexDirection: 'row',

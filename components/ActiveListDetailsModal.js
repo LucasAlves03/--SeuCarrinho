@@ -20,7 +20,7 @@ const ActiveListDetailsModal = ({
   onEditItem,
   onMarkAsBought,
   onUnmarkAsBought,
-  onDeleteItem
+  onDeleteItem,
 }) => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [itemToEdit, setItemToEdit] = useState(null);
@@ -67,13 +67,11 @@ const ActiveListDetailsModal = ({
   };
 
   const handleSaveEdit = (updatedItem) => {
-    // Update local state immediately
     const updatedItems = localList.items.map((i) =>
       i.id === updatedItem.id ? updatedItem : i,
     );
     setLocalList({ ...localList, items: updatedItems });
 
-    // Then update parent
     if (onEditItem && localList) {
       onEditItem(localList.id, updatedItem);
     }
@@ -81,32 +79,34 @@ const ActiveListDetailsModal = ({
   };
 
   const handleMarkAsBought = (item) => {
-    if (item.bought){
-    
-    const updatedItems = localList.items.map(i =>
-      i.id === item.id ? { ...i, bought: false } : i );
+    if (item.bought) {
+      const updatedItems = localList.items.map((i) =>
+        i.id === item.id ? { ...i, bought: false } : i,
+      );
       setLocalList({ ...localList, items: updatedItems });
 
-    if (onUnmarkAsBought && localList) {
-      onUnmarkAsBought(localList.id, item.id);
-    }
-  } else {
-    const updatedItems = localList.items.map(i => 
-      i.id === item.id ? {...i, bought: true } : i
-    );
-    setLocalList({ ...localList, items: updatedItems});
-    
-      if(onMarkAsBought && localList) {
+      if (onUnmarkAsBought && localList) {
+        onUnmarkAsBought(localList.id, item.id);
+      }
+    } else {
+      const updatedItems = localList.items.map((i) =>
+        i.id === item.id ? { ...i, bought: true } : i,
+      );
+      setLocalList({ ...localList, items: updatedItems });
+
+      if (onMarkAsBought && localList) {
         onMarkAsBought(localList.id, item.id);
       }
-    } 
-
+    }
   };
 
   const handleDeleteItem = (item) => {
-    if(onDeleteItem && localList) {
-      const updatedItems = localList.items.filter(i => i.id !== item.id);
-      setLocalList({...localList, items: updatedItems});
+    if (onDeleteItem && localList) {
+      const updatedItems = localList.items.filter((i) => i.id !== item.id);
+      setLocalList({ ...localList, items: updatedItems });
+      
+      // Call parent to delete
+      onDeleteItem(localList.id, item.id);
     }
   };
 
@@ -118,7 +118,7 @@ const ActiveListDetailsModal = ({
       onRequestClose={onClose}
     >
       <View style={styles.container}>
-        {/* Header */}
+        {/* ✏️✏️✏️ Header - Added zIndex */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -135,7 +135,7 @@ const ActiveListDetailsModal = ({
           </View>
         </View>
 
-        {/* Progress Bar */}
+        {/* ✏️✏️✏️ Progress Bar - Added zIndex */}
         <View style={styles.progressSection}>
           <View style={styles.progressBarContainer}>
             <View
@@ -152,9 +152,10 @@ const ActiveListDetailsModal = ({
           </Text>
         </View>
 
-        {/* Items List */}
+        {/* ✏️✏️✏️ Items List - Added contentContainerStyle for bottom padding */}
         <ScrollView
           style={styles.itemsList}
+          contentContainerStyle={styles.itemsListContent}
           showsVerticalScrollIndicator={false}
         >
           {localList.items.map((item, index) => (
@@ -162,7 +163,6 @@ const ActiveListDetailsModal = ({
               key={item.id || index}
               style={[styles.itemCard, item.bought && styles.itemCardBought]}
             >
-              {/* Checkbox */}
               <TouchableOpacity
                 style={styles.checkbox}
                 onPress={() => handleMarkAsBought(item)}
@@ -173,7 +173,9 @@ const ActiveListDetailsModal = ({
                     item.bought && styles.checkboxBoxChecked,
                   ]}
                 >
-                  {item.bought && <Ionicons name="checkmark" size={18} color="#fff" />}
+                  {item.bought && (
+                    <Ionicons name="checkmark" size={18} color="#fff" />
+                  )}
                 </View>
               </TouchableOpacity>
 
@@ -217,7 +219,6 @@ const ActiveListDetailsModal = ({
                 )}
               </View>
 
-              {/* Edit Button - hide if bought */}
               {!item.bought ? (
                 <TouchableOpacity
                   style={styles.editButton}
@@ -226,15 +227,18 @@ const ActiveListDetailsModal = ({
                   <Ionicons name="create-outline" size={22} color="#4A90E2" />
                 </TouchableOpacity>
               ) : (
-                <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteItem(item)}>
-                  <Ionicons name="trash-outline" size={22} color="#000000"/>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => handleDeleteItem(item)}
+                >
+                  <Ionicons name="trash-outline" size={22} color="#ef4444" />
                 </TouchableOpacity>
               )}
             </View>
           ))}
         </ScrollView>
 
-        {/* Footer */}
+        {/* ✏️✏️✏️ Footer - Added zIndex and fixed spacing */}
         <View style={styles.footer}>
           <View style={styles.totalsContainer}>
             <View style={styles.totalRow}>
@@ -267,7 +271,6 @@ const ActiveListDetailsModal = ({
           </View>
         </View>
 
-        {/* Edit Modal */}
         <EditItemModal
           visible={editModalVisible}
           onClose={() => setEditModalVisible(false)}
@@ -286,17 +289,24 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#fff",
-    paddingTop: 35,
-    paddingBottom: 5,
+    paddingTop: 60,
+    paddingBottom: 20,
     paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 5,
+    zIndex: 10,  
   },
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
-    
   },
   closeButton: {
-    marginRight: 5,
+    marginRight: 15,
     padding: 5,
   },
   headerTitle: {
@@ -314,40 +324,39 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",
-    
+    zIndex: 9,  
   },
   progressBarContainer: {
     height: 10,
     backgroundColor: "#E5E7EB",
     borderRadius: 6,
     overflow: "hidden",
-    marginBottom: 5,
+    marginBottom: 10,
   },
   progressBarFill: {
     height: "100%",
-    backgroundColor: "#156ae3",
+    backgroundColor: "#0f86ee",
     borderRadius: 6,
   },
   progressText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
-    color: "#6B7280",
+    color: "#4A90E2",
     textAlign: "center",
   },
   itemsList: {
     flex: 1,
-    padding: 20,
-    marginBottom: 10,
-    borderStyle: 'solid',
-borderWidth: 2,
-borderColor: 'red',
-
+    paddingHorizontal: 20,
+  },
+  itemsListContent: {
+    paddingTop: 20,
+    paddingBottom: 20,  
   },
   itemCard: {
     backgroundColor: "#fff",
     borderRadius: 16,
     padding: 16,
-    marginBottom: 15,
+    marginBottom: 12, 
     flexDirection: "row",
     alignItems: "center",
     shadowColor: "#000000",
@@ -357,7 +366,7 @@ borderColor: 'red',
     elevation: 3,
   },
   itemCardBought: {
-    backgroundColor: "#edebebfd",
+    backgroundColor: "#F9FAFB",
     opacity: 0.7,
   },
   checkbox: {
@@ -374,8 +383,8 @@ borderColor: 'red',
     backgroundColor: "#fff",
   },
   checkboxBoxChecked: {
-    backgroundColor: "#156ae3",
-    borderColor: "#00000021",
+    backgroundColor: "#0f86ee",
+    borderColor: "#0f86ee",
   },
   itemImage: {
     width: 70,
@@ -434,9 +443,9 @@ borderColor: 'red',
     marginLeft: 8,
   },
   deleteButton: {
-      padding: 8,
-      marginLeft: 8,
-    },
+    padding: 8,
+    marginLeft: 8,
+  },
   footer: {
     backgroundColor: "#fff",
     padding: 20,
@@ -447,21 +456,7 @@ borderColor: 'red',
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 5,
-  },
-  totalContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  totalLabel: {
-    fontSize: 16,
-    color: "#6B7280",
-    fontWeight: "600",
-  },
-  totalValue: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#1F2937",
+    zIndex: 10,  
   },
   totalsContainer: {
     width: "100%",
@@ -478,10 +473,15 @@ borderColor: 'red',
     borderTopColor: "#E5E7EB",
     marginTop: 4,
   },
+  totalLabel: {
+    fontSize: 14,
+    color: "#6B7280",
+    fontWeight: "600",
+  },
   totalBought: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#10B981",
+    color: "#0f86ee",
   },
   totalLabelSecondary: {
     fontSize: 14,
@@ -497,6 +497,11 @@ borderColor: 'red',
     fontSize: 16,
     color: "#1F2937",
     fontWeight: "700",
+  },
+  totalValue: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#1F2937",
   },
 });
 
