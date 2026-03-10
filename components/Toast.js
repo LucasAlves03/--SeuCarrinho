@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import { useEffect, useRef } from "react";
+import { Animated, StyleSheet, Text, View } from "react-native";
 
 const Toast = ({ visible, message, onHide }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -14,10 +14,9 @@ const Toast = ({ visible, message, onHide }) => {
           duration: 300,
           useNativeDriver: true,
         }),
-        Animated.spring(translateY, {
+        Animated.timing(translateY, {
           toValue: 0,
-          tension: 65,
-          friction: 10,
+          duration: 300,
           useNativeDriver: true,
         }),
       ]).start();
@@ -69,30 +68,30 @@ const Toast = ({ visible, message, onHide }) => {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: -80,
+    position: "absolute",
+    top: -70,
     left: 20,
     right: 20,
     zIndex: 9999,
-    backgroundColor: '#10B981',
+    backgroundColor: "#10B981",
     borderRadius: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 8,
+    elevation: 10,
   },
   content: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 16,
     gap: 12,
   },
   message: {
     flex: 1,
-    color: '#fff',
+    color: "#fff",
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
 

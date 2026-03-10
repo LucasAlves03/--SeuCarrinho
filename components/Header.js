@@ -1,6 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const Header = ({ title, showMenu, onMenuPress }) => {
   return (
@@ -17,23 +16,22 @@ const Header = ({ title, showMenu, onMenuPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     paddingTop: 25,
     paddingBottom: 15,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E8F4FD',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    zIndex: 10,
+    borderBottomColor: "#E8F4FD",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   title: {
     fontSize: 26,
-    fontWeight: '700',
-    color: '#4A90E2',
+    fontWeight: "700",
+    color: "#4A90E2",
     letterSpacing: 0.5,
-    padding: 10
+    padding: 10,
   },
   menuButton: {
     padding: 5,
